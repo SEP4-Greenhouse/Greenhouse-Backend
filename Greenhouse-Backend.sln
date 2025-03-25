@@ -1,8 +1,34 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenhouseApi", "GreenhouseApi\GreenhouseApi.csproj", "{EC020518-7BED-438C-A7D1-5FBDD2E515B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLModelClient", "MLModelClient\MLModelClient.csproj", "{47EA6445-7863-4290-AB38-6679522A38B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCGreenhouse", "EFCGreenhouse\EFCGreenhouse.csproj", "{27C1E458-F492-4BA6-A47B-C2190A3BFF2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC020518-7BED-438C-A7D1-5FBDD2E515B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC020518-7BED-438C-A7D1-5FBDD2E515B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC020518-7BED-438C-A7D1-5FBDD2E515B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC020518-7BED-438C-A7D1-5FBDD2E515B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47EA6445-7863-4290-AB38-6679522A38B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47EA6445-7863-4290-AB38-6679522A38B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47EA6445-7863-4290-AB38-6679522A38B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47EA6445-7863-4290-AB38-6679522A38B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27C1E458-F492-4BA6-A47B-C2190A3BFF2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27C1E458-F492-4BA6-A47B-C2190A3BFF2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27C1E458-F492-4BA6-A47B-C2190A3BFF2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27C1E458-F492-4BA6-A47B-C2190A3BFF2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
