@@ -1,11 +1,10 @@
-﻿using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
 using Domain.DTOs;
+using Domain.IClients;
 
-namespace MLModelClient.Services;
+namespace ML_Model;
 
-public class MLHttpClient
+public class MLHttpClient : ImlHttpClient
 {
     private readonly HttpClient _httpClient;
 
