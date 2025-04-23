@@ -1,6 +1,6 @@
 using Domain.Interfaces;
 
-namespace EFCGreenhouse.Implementations;
+namespace EFCGreenhouse.Repositories;
 
 public class UserRepository : IUserRepository
 {

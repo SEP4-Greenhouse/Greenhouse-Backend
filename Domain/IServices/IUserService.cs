@@ -1,4 +1,4 @@
-namespace GreenhouseApi.Services;
+namespace Domain.IServices;
 
 public interface IUserService
 {

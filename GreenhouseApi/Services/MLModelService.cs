@@ -1,9 +1,9 @@
-﻿using System.Net.Http.Json;
-using Domain.DTOs;
+﻿using Domain.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.IServices;
 
-namespace MLModelClient.Services;
+namespace GreenhouseApi.Services;
 
 public class MlModelService : IMlModelService
 {

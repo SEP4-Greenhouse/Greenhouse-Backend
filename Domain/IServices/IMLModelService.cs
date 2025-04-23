@@ -1,6 +1,6 @@
 ﻿using Domain.DTOs;
 
-namespace MLModelClient.Services;
+namespace Domain.IServices;
 
 
 public interface IMlModelService
