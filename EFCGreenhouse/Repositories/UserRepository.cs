@@ -29,4 +29,9 @@ public class UserRepository : IUserRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task<bool> ExistsByEmailAsync(string email)
+    {
+        throw new NotImplementedException();
+    }
 }
