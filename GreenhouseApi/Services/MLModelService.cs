@@ -1,6 +1,6 @@
 ﻿using Domain.DTOs;
 using Domain.Entities;
-using Domain.Interfaces;
+using Domain.IRepositories;
 using Domain.IServices;
 
 namespace GreenhouseApi.Services;

@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.Interfaces;
+using Domain.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse.Repositories
@@ -27,5 +27,19 @@ namespace EFCGreenhouse.Repositories
                 .ToListAsync();
         }
 
+        public async Task<PredictionLog?> GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task UpdateAsync(PredictionLog log)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
