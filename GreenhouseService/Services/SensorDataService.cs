@@ -1,4 +1,4 @@
-namespace GreenhouseApi.Services;
+namespace GreenhouseService.Services;
 
 public class SensorDataService
 {

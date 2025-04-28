@@ -5,7 +5,7 @@ using Domain.Entities;
 using Domain.IRepositories;
 using Domain.IServices;
 
-namespace GreenhouseApi.Services;
+namespace GreenhouseService.Services;
 
 public class UserService : IUserService
 {

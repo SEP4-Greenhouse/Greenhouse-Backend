@@ -1,9 +1,10 @@
-﻿using Domain.DTOs;
+﻿using System.Net.Http.Json;
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IRepositories;
 using Domain.IServices;
 
-namespace GreenhouseApi.Services;
+namespace GreenhouseService.Services;
 
 public class MlModelService : IMlModelService
 {
