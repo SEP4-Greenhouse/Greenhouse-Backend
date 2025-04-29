@@ -1,10 +1,16 @@
-
+<<<<<<< Updated upstream
+=======
 using Domain.DTOs;
 using Domain.Entities;
 
+>>>>>>> Stashed changes
 namespace Domain.IClients;
 
-public interface ImlHttpClient
+public class ImlHttpClient
 {
+<<<<<<< Updated upstream
+    
+=======
     Task<PredictionLog?> PredictAsync(SensorDataDto input);
+>>>>>>> Stashed changes
 }
