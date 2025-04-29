@@ -17,16 +17,21 @@ public class MlModelService : IMlModelService
         _predictLogRepository = predictLogRepository;
     }
 
-    public async Task<PredictionLog> PredictAsync(SensorDataDto input)
+    public async Task<PredictionResultDto> PredictAsync(SensorDataDto input)
     {
-        var response = await _httpClient.PostAsJsonAsync("/predict", input);
-        response.EnsureSuccessStatusCode();
+        var result = await _mlHttpClient.PredictAsync(input);
 
-        var result = await response.Content.ReadFromJsonAsync<PredictionResultDto>();
-        
-        if (result == null)
+        if (result != null)
         {
-            throw new Exception("Prediction result is null");
+            await _predictLogRepository.AddAsync(new PredictionLog
+            {
+                SensorType = input.SensorType,
+                Value = input.Value,
+                SensorTimestamp = input.Timestamp,
+                Status = result.Status,
+                Suggestion = result.Suggestion,
+                PredictionTimestamp = result.Timestamp
+            });
         }
 
         return result!;
