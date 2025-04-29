@@ -30,6 +30,8 @@ builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
     options.UseSqlite("Data Source=greenhouse.db"));
 
+builder.Services.AddScoped<IMqttListener, MqttListener>();
+
 // 🔹 Add CORS policy
 builder.Services.AddCors(options =>
 {
@@ -66,8 +68,14 @@ app.MapControllers();
 
 
 // 🔹Initialize MQTT connection at startup
-var mqttClient = new MqttClient.MqttClient();
-await mqttClient.ConnectAsync();
+//var mqttClient = new MqttClient.MqttClient();
+//await mqttClient.ConnectAsync();
+
+using (var scope = app.Services.CreateScope())
+{
+    var mqttListener = scope.ServiceProvider.GetRequiredService<IMqttListener>();
+    await mqttListener.StartListeningAsync();
+}
 
 app.Run();
 

@@ -9,5 +9,6 @@ namespace EFCGreenhouse
             : base(options) {}
 
         public DbSet<PredictionLog> PredictionLogs { get; set; }
+        public DbSet<SensorReading> SensorReadings { get; set; }
     }
 }
