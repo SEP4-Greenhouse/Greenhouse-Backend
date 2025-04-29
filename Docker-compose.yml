@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5001:80"
+      - "5001:5001"
     volumes:
       - ./EFCGreenhouse/greenhouse.db:/app/greenhouse.db
     environment:
