@@ -11,13 +11,13 @@ public class MLHttpClient : ImlHttpClient
     public MLHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI URL
+        _httpClient.BaseAddress = new Uri("http://host.docker.internal:8000");// Set the base URL
     }
 
-    public async Task<PredictionResultDto?> PredictAsync(SensorDataDto input)
+    public async Task<PredictionLog?> PredictAsync(SensorDataDto input)
     {
-        var response = await _httpClient.PostAsJsonAsync("/predict", input);
+        var response = await _httpClient.PostAsJsonAsync("/predict", input); // Use relative endpoint
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<PredictionResultDto>();
+        return await response.Content.ReadFromJsonAsync<PredictionLog>();
     }
 }

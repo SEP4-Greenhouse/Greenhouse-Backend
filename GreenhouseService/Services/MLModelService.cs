@@ -1,4 +1,5 @@
-﻿using Domain.DTOs;
+
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IClients;
 using Domain.IRepositories;
@@ -25,12 +26,12 @@ public class MlModelService : IMlModelService
         {
             await _predictLogRepository.AddAsync(new PredictionLog
             {
-                SensorType = input.SensorType,
-                Value = input.Value,
-                SensorTimestamp = input.Timestamp,
+                SensorType = input.Current.SensorType,
+                Value = input.Current.Value,
+                SensorTimestamp = input.Current.Timestamp,
                 Status = result.Status,
                 Suggestion = result.Suggestion,
-                PredictionTimestamp = result.Timestamp
+                PredictionTimestamp = result.PredictionTimestamp
             });
         }
 
