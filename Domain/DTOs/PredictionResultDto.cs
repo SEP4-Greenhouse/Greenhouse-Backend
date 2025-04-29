@@ -1,20 +1,13 @@
-﻿namespace Domain.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
 
 public class PredictionResultDto
 {
+    [Required(ErrorMessage = "Timestamp is required.")]
     public DateTime Timestamp { get; init; }
+
+    [Required(ErrorMessage = "Status is required.")]
     public string Status { get; init; }
+
+    [Required(ErrorMessage = "Suggestion is required.")]
     public string Suggestion { get; init; }
-
-    public PredictionResultDto(DateTime timestamp, string status, string suggestion)
-    {
-        if (string.IsNullOrWhiteSpace(status))
-            throw new ArgumentException("Status cannot be empty.");
-        if (string.IsNullOrWhiteSpace(suggestion))
-            throw new ArgumentException("Suggestion cannot be empty.");
-
-        Timestamp = timestamp;
-        Status = status;
-        Suggestion = suggestion;
-    }
 }

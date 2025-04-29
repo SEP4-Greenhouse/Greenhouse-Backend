@@ -19,27 +19,32 @@ namespace EFCGreenhouse.Repositories
             await _context.SaveChangesAsync();
         }
 
-
         public async Task<IEnumerable<PredictionLog>> GetAllAsync()
         {
             return await _context.PredictionLogs
-                .OrderByDescending(p => p.PredictionTimestamp)
+                .OrderByDescending(p => p.Timestamp) // Use the correct property
                 .ToListAsync();
         }
 
         public async Task<PredictionLog?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.PredictionLogs.FindAsync(id);
         }
 
         public async Task UpdateAsync(PredictionLog log)
         {
-            throw new NotImplementedException();
+            _context.PredictionLogs.Update(log);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var log = await _context.PredictionLogs.FindAsync(id);
+            if (log != null)
+            {
+                _context.PredictionLogs.Remove(log);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
