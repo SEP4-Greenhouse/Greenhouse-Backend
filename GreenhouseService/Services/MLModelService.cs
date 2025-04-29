@@ -1,4 +1,4 @@
-﻿// Updated MlModelService class
+
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.IClients;
@@ -18,7 +18,7 @@ public class MlModelService : IMlModelService
         _predictLogRepository = predictLogRepository;
     }
 
-    public async Task<PredictionLog> PredictAsync(SensorDataDto input)
+    public async Task<PredictionResultDto> PredictAsync(SensorDataDto input)
     {
         var result = await _mlHttpClient.PredictAsync(input);
 

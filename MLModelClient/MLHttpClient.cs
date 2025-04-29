@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using Domain.DTOs;
-using Domain.Entities;
 using Domain.IClients;
 
 namespace ML_Model;
