@@ -1,38 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
-# ----------- Stage 1: Build the application -----------
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-# Copy the solution file and all *.csproj files
-COPY GreenhouseBackend.sln ./
+COPY Greenhouse-Backend.sln ./
 COPY Domain/Domain.csproj Domain/
 COPY EFCGreenhouse/EFCGreenhouse.csproj EFCGreenhouse/
 COPY GreenhouseApi/GreenhouseApi.csproj GreenhouseApi/
+COPY MqttClient/MqttClient.csproj MqttClient/
 COPY MLModelClient/MLModelClient.csproj MLModelClient/
+COPY GreenhouseService/GreenhouseService.csproj GreenhouseService/
 
-# Restore all dependencies for the solution
-RUN dotnet restore GreenhouseBackend.sln
+RUN dotnet restore Greenhouse-Backend.sln
 
-# Now copy everything else
 COPY . .
 
-# Build the solution in Release mode
-RUN dotnet build GreenhouseBackend.sln -c Release -o /app/build
+RUN dotnet build Greenhouse-Backend.sln -c Release -o /app/build
 
-# ----------- Stage 2: Publish the application -----------
 FROM build AS publish
-RUN dotnet publish GreenhouseBackend.sln -c Release -o /app/publish
+RUN dotnet publish Greenhouse-Backend.sln -c Release -o /app/publish
 
-# ----------- Stage 3: Create the final runtime image -----------
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+
 WORKDIR /app
 
-# Copy published output from the publish stage
 COPY --from=publish /app/publish .
 
-# Expose port 80 (HTTP) or 443 (HTTPS) as needed
 EXPOSE 80
 
-# Set the entrypoint to run the GreenhouseApi project DLL
-# Adjust the DLL name if it differs (e.g., GreenhouseApi.dll)
 ENTRYPOINT ["dotnet", "GreenhouseApi.dll"]
