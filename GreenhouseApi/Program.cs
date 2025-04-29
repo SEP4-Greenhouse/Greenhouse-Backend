@@ -1,25 +1,26 @@
+using Domain.IClients;
 using Domain.IRepositories;
 using Domain.IServices;
 using EFCGreenhouse.Repositories;
 using EFCGreenhouse;
 using GreenhouseService.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 🔹 Register services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 // 🔹 Register your controller dependencies
 builder.Services.AddScoped<IMlModelService, MlModelService>();
 
-// 🔹 Register controllers support
-builder.Services.AddControllers();
-
-// 🔹 Register the ML model service
-builder.Services.AddHttpClient<IMlModelService, MlModelService>();
+// 🔹 Register the ML HTTP client
+builder.Services.AddHttpClient<ImlHttpClient, MLHttpClient>(client =>
+{
+    client.BaseAddress = new Uri("http://host.docker.internal:8000");
+});
 
 // 🔹 Register the EF Core DbContext
 builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
@@ -44,7 +45,6 @@ builder.Services.AddLogging();
 
 var app = builder.Build();
 
-// 🔹 Add diagnostics and logging
 // 🔹 Add diagnostics and logging
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -74,4 +74,4 @@ app.UseAuthorization();
 
 // 🔹 Map controllers
 app.MapControllers();
-app.Run("http://0.0.0.0:5001"); 
+app.Run("http://0.0.0.0:5001");

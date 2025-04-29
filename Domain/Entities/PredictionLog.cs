@@ -1,16 +1,13 @@
-﻿namespace Domain.Entities;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 public class PredictionLog
 {
-    public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }  // Primary key
 
-    // Sensor input
-    public string SensorType { get; set; } = null!;
-    public double Value { get; set; }
-    public DateTime SensorTimestamp { get; set; }
-
-    // Prediction result
-    public string Status { get; set; } = null!;
-    public string Suggestion { get; set; } = null!;
-    public DateTime PredictionTimestamp { get; set; }
+    public DateTime Timestamp { get; set; }  // Use DateTime for a timestamp field
+    public string Status { get; set; }  // Example: "Success", "Failure"
+    public string Suggestion { get; set; }  // Example: "Increase watering", "Decrease light"
+    public string TrendAnalysis { get; set; }  // Example: "Stable", "Increasing"
 }

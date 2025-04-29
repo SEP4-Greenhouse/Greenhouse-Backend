@@ -1,4 +1,3 @@
-
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.IClients;
@@ -18,23 +17,30 @@ public class MlModelService : IMlModelService
         _predictLogRepository = predictLogRepository;
     }
 
-    public async Task<PredictionResultDto> PredictAsync(SensorDataDto input)
+    public async Task<PredictionLog?> PredictAsync(SensorDataDto input)
     {
-        var result = await _mlHttpClient.PredictAsync(input);
-
-        if (result != null)
+        if (input == null || input.current == null || input.history == null || !input.history.Any())
         {
-            await _predictLogRepository.AddAsync(new PredictionLog
-            {
-                SensorType = input.Current.SensorType,
-                Value = input.Current.Value,
-                SensorTimestamp = input.Current.Timestamp,
-                Status = result.Status,
-                Suggestion = result.Suggestion,
-                PredictionTimestamp = result.PredictionTimestamp
-            });
+            throw new ArgumentException("Invalid sensor data input.");
         }
 
-        return result!;
+        var result = await _mlHttpClient.PredictAsync(input);
+
+        if (result == null)
+        {
+            return null;
+        }
+
+        var predictionLog = new PredictionLog
+        {
+            Timestamp = result.Timestamp,  
+            Status = result.Status, 
+            Suggestion = result.Suggestion,  
+            TrendAnalysis = result.TrendAnalysis 
+        };
+
+        await _predictLogRepository.AddAsync(predictionLog);
+
+        return result;
     }
 }
