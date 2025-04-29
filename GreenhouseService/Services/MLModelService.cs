@@ -18,24 +18,21 @@ public class MlModelService : IMlModelService
         _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI URL
     }
 
-    public async Task<PredictionResultDto> PredictAsync(SensorDataDto input)
+    public async Task<PredictionLog> PredictAsync(SensorDataDto input)
     {
+<<<<<<< Updated upstream
         var response = await _httpClient.PostAsJsonAsync("/predict", input);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PredictionResultDto>();
 
         if (result != null)
+=======
+        var result = await _mlHttpClient.PredictAsync(input);
+        if (result == null)
+>>>>>>> Stashed changes
         {
-            await _predictLogRepository.AddAsync(new PredictionLog
-            {
-                SensorType = input.SensorType,
-                Value = input.Value,
-                SensorTimestamp = input.Timestamp,
-                Status = result.Status,
-                Suggestion = result.Suggestion,
-                PredictionTimestamp = result.Timestamp
-            });
+            throw new Exception("Prediction result is null");
         }
 
         return result!;

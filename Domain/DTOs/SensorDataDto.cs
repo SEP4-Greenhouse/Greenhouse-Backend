@@ -1,18 +1,15 @@
-﻿namespace Domain.DTOs;
-
-public class SensorDataDto
+﻿namespace Domain.DTOs
 {
-    public string SensorType { get; init; }
-    public double Value { get; init; }
-    public DateTime Timestamp { get; init; }
-
-    public SensorDataDto(string sensorType, double value, DateTime timestamp)
+    public class SensorReadingDto
     {
-        if (string.IsNullOrWhiteSpace(sensorType))
-            throw new ArgumentException("SensorType cannot be empty.");
-        
-        SensorType = sensorType;
-        Value = value;
-        Timestamp = timestamp;
+        public string SensorType { get; set; }
+        public double Value { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class SensorDataDto
+    {
+        public SensorReadingDto Current { get; set; }
+        public List<SensorReadingDto> History { get; set; }
     }
 }
