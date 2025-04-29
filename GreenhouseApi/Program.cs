@@ -4,6 +4,7 @@ using EFCGreenhouse.Repositories;
 using EFCGreenhouse;
 using GreenhouseService.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
     options.UseSqlite("Data Source=greenhouse.db"));
 
-// 🔹 Add CORS policy
+// 🔹 Add CORS policy for frontend at localhost:5173
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -38,33 +39,39 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 🔹 Add logging
+builder.Services.AddLogging();
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+// 🔹 Add diagnostics and logging
+// 🔹 Add diagnostics and logging
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greenhouse API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greenhouse API V1");
+    c.RoutePrefix = string.Empty; // Access Swagger at the root URL
+});
 
-app.UseHttpsRedirection();
+// 🔹 Enable CORS (IMPORTANT - Enable CORS after routing)
+app.UseCors();       
 
-app.UseRouting();     // 🔹 (IMPORTANT for CORS!)
+// 🔹 Middleware to log request and response data
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
+    
+    await next();
 
-app.UseCors();        // 🔹 (Enable CORS AFTER routing)
+    logger.LogInformation("Finished processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
+});
 
+app.UseRouting();     
+
+// 🔹 Enable authorization (if needed)
 app.UseAuthorization();
 
 // 🔹 Map controllers
 app.MapControllers();
-
-app.Run();
-
-// (WeatherForecast record is not needed for your app, but it's okay to leave it)
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run("http://0.0.0.0:5001"); 
