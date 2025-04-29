@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    volumes:
+      - ./EFCGreenhouse/greenhouse.db:/app/greenhouse.db
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=/app/greenhouse.db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
