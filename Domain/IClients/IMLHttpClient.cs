@@ -1,6 +1,8 @@
+using Domain.DTOs;
+
 namespace Domain.IClients;
 
-public class ImlHttpClient
+public interface ImlHttpClient
 {
-    
+    Task<PredictionResultDto?> PredictAsync(SensorDataDto input);
 }

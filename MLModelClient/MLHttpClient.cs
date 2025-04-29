@@ -11,11 +11,13 @@ public class MLHttpClient : ImlHttpClient
     public MLHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI URL
     }
 
     public async Task<PredictionResultDto?> PredictAsync(SensorDataDto input)
     {
-        var response = await _httpClient.PostAsJsonAsync("http://127.0.0.1:8000/predict", input);
+        var response = await _httpClient.PostAsJsonAsync("/predict", input);
+        response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<PredictionResultDto>();
     }
 }
