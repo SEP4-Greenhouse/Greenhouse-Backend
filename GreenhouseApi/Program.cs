@@ -1,9 +1,12 @@
 using Domain.IRepositories;
 using Domain.IServices;
+using Domain.IClients;
 using EFCGreenhouse.Repositories;
 using EFCGreenhouse;
 using GreenhouseService.Services;
 using Microsoft.EntityFrameworkCore;
+using MqttClient;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +63,11 @@ app.UseAuthorization();
 
 // 🔹 Map controllers
 app.MapControllers();
+
+
+// 🔹Initialize MQTT connection at startup
+var mqttClient = new MqttClient.MqttClient();
+await mqttClient.ConnectAsync();
 
 app.Run();
 
