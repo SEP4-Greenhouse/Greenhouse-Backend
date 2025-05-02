@@ -6,83 +6,107 @@ using Domain.IClients;
 using EFCGreenhouse;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Protocol;
 
 namespace MqttClient;
 
 public class MqttListener : IMqttListener
 {
     private readonly GreenhouseDbContext _dbContext;
-    private IMqttClient _mqttClient;
+    private readonly IMqttClient _client;
+    private readonly MqttClientOptions _options;
 
     public MqttListener(GreenhouseDbContext dbContext)
     {
         _dbContext = dbContext;
-        _mqttClient = new MqttFactory().CreateMqttClient(); // Ensure MQTTnet is installed
+
+        var factory = new MqttFactory();
+        _client = factory.CreateMqttClient();
+
+        _options = new MqttClientOptionsBuilder()
+            .WithTcpServer("localhost", 1883) // Change if broker is remote
+            .WithCleanSession()
+            .Build();
+
+        // Event: When connected
+        _client.ConnectedAsync += async e =>
+        {
+            Console.WriteLine("✅ Connected to MQTT broker.");
+
+            await _client.SubscribeAsync(new MqttTopicFilterBuilder()
+                .WithTopic("greenhouse/sensors")
+                .WithAtMostOnceQoS()
+                .Build());
+
+            Console.WriteLine("📡 Subscribed to topic: greenhouse/sensors");
+        };
+
+        // Event: When disconnected
+        _client.DisconnectedAsync += e =>
+        {
+            Console.WriteLine("⚠️ Disconnected from MQTT broker.");
+            return Task.CompletedTask;
+        };
+
+        // Event: When a message is received
+        _client.ApplicationMessageReceivedAsync += async e =>
+        {
+            var topic = e.ApplicationMessage.Topic;
+            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload ?? Array.Empty<byte>());
+
+            Console.WriteLine($"📥 Received message - Topic: {topic} | Message: {payload}");
+
+            try
+            {
+                var sensorData = JsonSerializer.Deserialize<SensorDataDto>(payload);
+
+                if (sensorData != null)
+                {
+                    var reading = new SensorReading(
+                        sensorData.Timestamp,
+                        sensorData.Value,
+                        sensorData.SensorType,
+                        null // TODO: Link to Sensor entity if available
+                    );
+
+                    _dbContext.SensorReadings.Add(reading);
+                    await _dbContext.SaveChangesAsync();
+
+                    Console.WriteLine("✅ Sensor reading saved to database.");
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Deserialized data was null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Failed to deserialize or save message: {ex.Message}");
+            }
+        };
     }
 
     public async Task StartListeningAsync()
     {
-        var options = new MqttClientOptionsBuilder()
-            .WithClientId("GreenhouseBackend")
-            .WithTcpServer("host.docker.internal", 1883) // Adjust broker address if needed
-            .WithCleanSession()
-            .Build();
-
-        _mqttClient.ApplicationMessageReceivedAsync += HandleMessageReceivedAsync;
-
         try
         {
-            // Connect to the MQTT broker
-            await _mqttClient.ConnectAsync(options, CancellationToken.None);
-            Console.WriteLine("MQTT Client connected.");
-
-            // Subscribe to the topic
-            await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder()
-                .WithTopic("greenhouse/sensors")
-                .Build());
-            Console.WriteLine("Subscribed to topic: greenhouse/sensors");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error connecting to MQTT broker: {ex.Message}");
-        }
-    }
-
-    private async Task HandleMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
-    {
-        var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-
-        try
-        {
-            var sensorData = JsonSerializer.Deserialize<SensorDataDto>(payload);
-
-            if (sensorData != null)
+            if (!_client.IsConnected)
             {
-                Console.WriteLine($"Received Sensor Data: {sensorData.SensorType} - {sensorData.Value} at {sensorData.Timestamp}");
-
-                var reading = new SensorReading(
-                    sensorData.Timestamp,
-                    sensorData.Value,
-                    sensorData.SensorType,
-                    null // No Sensor reference yet
-                );
-
-                _dbContext.SensorReadings.Add(reading);
-                await _dbContext.SaveChangesAsync();
+                await _client.ConnectAsync(_options);
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to deserialize message: {ex.Message}");
+            Console.WriteLine($"❌ MQTT connection failed: {ex.Message}");
         }
     }
 
     public async Task StopListeningAsync()
     {
-        if (_mqttClient.IsConnected)
+        if (_client.IsConnected)
         {
-            await _mqttClient.DisconnectAsync();
-            Console.WriteLine("MQTT Client disconnected.");
+            await _client.DisconnectAsync();
+            Console.WriteLine("🔌 MQTT Client disconnected.");
         }
     }
 }
