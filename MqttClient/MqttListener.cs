@@ -63,10 +63,10 @@ public class MqttListener : IMqttListener
                 if (sensorData != null)
                 {
                     var reading = new SensorReading(
-                        sensorData.Timestamp,
-                        sensorData.Value,
-                        sensorData.SensorType,
-                        null // TODO: Link to Sensor entity if available
+                        sensorData.current.timestamp,
+                        sensorData.current.value,
+                        sensorData.current.sensorType,
+                        null // TODO: Link to Sensor entity if available§
                     );
 
                     _dbContext.SensorReadings.Add(reading);
