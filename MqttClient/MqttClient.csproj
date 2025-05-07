@@ -7,12 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.3.25171.5" />
-      <PackageReference Include="MQTTnet" Version="5.0.1.1416" />
+      <PackageReference Include="MQTTnet" Version="4.0.0.167" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
+      <ProjectReference Include="..\EFCGreenhouse\EFCGreenhouse.csproj" />
     </ItemGroup>
 
 </Project>
