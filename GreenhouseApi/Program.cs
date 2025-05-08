@@ -26,15 +26,18 @@ builder.Services.AddHttpClient<ImlHttpClient, MLHttpClient>(client =>
 });
 
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Port=5432;Database=greenhouse;Username=postgres;Password=postgres"));
+{
+    var connectionString = Environment.GetEnvironmentVariable("GREENHOUSE_DB_CONNECTION");
+    options.UseNpgsql(connectionString);
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -55,7 +58,7 @@ app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("Processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
-    
+
     await next();
 
     logger.LogInformation("Finished processing request: {Method} {Path}", context.Request.Method, context.Request.Path);

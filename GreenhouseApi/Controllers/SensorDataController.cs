@@ -1,3 +1,4 @@
+using Domain.Entities;
 using Domain.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,46 @@ public class SensorDataController : ControllerBase
     public SensorDataController(ISensorDataService sensorDataService)
     {
         _sensorDataService = sensorDataService;
+    }
+    // Add a new sensor
+    [HttpPost("sensor")]
+    public async Task<IActionResult> AddSensor([FromBody] Sensor sensor)
+    {
+        if (sensor == null)
+            return BadRequest("Sensor cannot be null.");
+
+        await _sensorDataService.AddSensorAsync(sensor);
+        return Ok("Sensor added successfully.");
+    }
+    
+    // Add a new sensor reading
+    [HttpPost("sensor/reading")]
+    public async Task<IActionResult> AddSensorReading([FromBody] SensorReading reading)
+    {
+        if (reading == null)
+            return BadRequest("Reading cannot be null.");
+
+        await _sensorDataService.AddSensorReadingAsync(reading);
+        return Ok("Sensor reading added successfully.");
+    }
+    
+    // Delete a sensor
+    [HttpDelete("sensor/{sensorId}")]
+    public async Task<IActionResult> DeleteSensor(int sensorId)
+    {
+        try
+        {
+            await _sensorDataService.DeleteSensorAsync(sensorId);
+            return Ok("Sensor deleted successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     // Get latest reading from all sensors

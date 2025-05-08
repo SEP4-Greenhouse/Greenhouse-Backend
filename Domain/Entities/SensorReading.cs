@@ -5,21 +5,15 @@ namespace Domain.Entities;
 
 public class SensorReading
 {
-    [Key]
-    public int Id { get; private set; }
+    [Key] public int Id { get; private set; }
 
-    [Required]
-    public DateTime TimeStamp { get; private set; }
+    [Required] public DateTime TimeStamp { get; private set; }
 
-    [Required]
-    public double Value { get; private set; }
+    [Required] public double Value { get; private set; }
 
-    [Required]
-    [MaxLength(50)]
-    public string Unit { get; private set; }
+    [Required] [MaxLength(50)] public string Unit { get; private set; }
 
-    [ForeignKey("Sensor")]
-    public int SensorId { get; private set; }
+    [ForeignKey("Sensor")] public int SensorId { get; private set; }
     public Sensor Sensor { get; private set; }
 
     public ICollection<Alert> TriggeredAlerts { get; private set; } = new List<Alert>();
@@ -37,7 +31,9 @@ public class SensorReading
         SensorId = sensor.Id;
     }
 
-    private SensorReading() { } // EF Core
+    private SensorReading()
+    {
+    } // EF Core
 
     public void AddAffectedPlant(Plant plant)
     {

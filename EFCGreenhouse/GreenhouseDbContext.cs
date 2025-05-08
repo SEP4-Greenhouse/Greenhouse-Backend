@@ -1,82 +1,106 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Action = Domain.Entities.Action;
 
-namespace EFCGreenhouse
+namespace EFCGreenhouse;
+
+public class GreenhouseDbContext : DbContext
 {
-    public class GreenhouseDbContext : DbContext
+    public GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options)
+        : base(options)
     {
-        public GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options)
-            : base(options) {}
+    }
 
-        public DbSet<PredictionLog> PredictionLogs { get; set; }
-        public DbSet<Action> Actions { get; set; }
-        public DbSet<Alert> Alerts { get; set; }
-        public DbSet<Greenhouse> Greenhouses { get; set; }
-        public DbSet<Controller> Controllers { get; set; }
-        public DbSet<Plant> Plants { get; set; }
-        public DbSet<Sensor> Sensors { get; set; }
-        public DbSet<SensorReading> SensorReadings { get; set; }
-        public DbSet<User> Users { get; set; }
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Greenhouse> Greenhouses => Set<Greenhouse>();
+    public DbSet<Plant> Plants => Set<Plant>();
+    public DbSet<Sensor> Sensors => Set<Sensor>();
+    public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
+    public DbSet<Alert> Alerts => Set<Alert>();
+    public DbSet<PredictionLog> PredictionLogs => Set<PredictionLog>();
+    public DbSet<Controller> Controllers => Set<Controller>();
+    public DbSet<WaterPumpController> WaterPumpControllers => Set<WaterPumpController>();
+    public DbSet<ControllerAction> ControllerActions => Set<ControllerAction>();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Action>()
-                .HasOne(a => a.Controller)
-                .WithMany(c => c.Actions)
-                .HasForeignKey(a => a.ControllerId);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        
 
-            modelBuilder.Entity<Alert>()
-                .HasMany(a => a.TriggeringSensorReadings)
-                .WithMany(sr => sr.TriggeredAlerts);
+        // Many-to-Many: Plant <-> SensorReading
+        modelBuilder.Entity<Plant>()
+            .HasMany(p => p.AffectingReadings)
+            .WithMany(r => r.AffectedPlants)
+            .UsingEntity(
+                "PlantSensorReading",
+                l => l.HasOne(typeof(SensorReading)).WithMany().HasForeignKey("SensorReadingId"),
+                r => r.HasOne(typeof(Plant)).WithMany().HasForeignKey("PlantId"));
 
-            modelBuilder.Entity<Alert>()
-                .HasMany(a => a.TriggeringActions)
-                .WithMany(ac => ac.TriggeredAlerts);
+        // One-to-Many: User -> Greenhouses
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Greenhouses)
+            .WithOne(g => g.User)
+            .HasForeignKey(g => g.UserId);
 
-            modelBuilder.Entity<Greenhouse>()
-                .HasMany(g => g.Plants)
-                .WithOne(p => p.Greenhouse)
-                .HasForeignKey(p => p.GreenhouseId);
+        // One-to-Many: Greenhouse -> Plants/Sensors/Controllers
+        modelBuilder.Entity<Greenhouse>()
+            .HasMany(g => g.Plants)
+            .WithOne(p => p.Greenhouse)
+            .HasForeignKey(p => p.GreenhouseId);
 
-            modelBuilder.Entity<Greenhouse>()
-                .HasMany(g => g.Sensors)
-                .WithOne(s => s.Greenhouse)
-                .HasForeignKey(s => s.GreenhouseId);
+        modelBuilder.Entity<Greenhouse>()
+            .HasMany(g => g.Sensors)
+            .WithOne(s => s.Greenhouse)
+            .HasForeignKey(s => s.GreenhouseId);
 
-            modelBuilder.Entity<Greenhouse>()
-                .HasMany(g => g.Controllers)
-                .WithOne(c => c.Greenhouse)
-                .HasForeignKey(c => c.GreenhouseId);
+        modelBuilder.Entity<Greenhouse>()
+            .HasMany(g => g.Controllers)
+            .WithOne(c => c.Greenhouse)
+            .HasForeignKey(c => c.GreenhouseId);
 
-            modelBuilder.Entity<SensorReading>()
-                .HasOne(sr => sr.Sensor)
-                .WithMany(s => s.Readings)
-                .HasForeignKey(sr => sr.SensorId);
+        // One-to-Many: Controller -> ControllerActions
+        modelBuilder.Entity<Controller>()
+            .HasMany(c => c.Actions)
+            .WithOne(a => a.Controller)
+            .HasForeignKey(a => a.ControllerId);
 
-            modelBuilder.Entity<SensorReading>()
-                .HasMany(sr => sr.TriggeredAlerts)
-                .WithMany(a => a.TriggeringSensorReadings);
+        // One-to-Many: Sensor -> SensorReadings
+        modelBuilder.Entity<Sensor>()
+            .HasMany(s => s.Readings)
+            .WithOne(r => r.Sensor)
+            .HasForeignKey(r => r.SensorId);
 
-            modelBuilder.Entity<SensorReading>()
-                .HasMany(sr => sr.AffectedPlants)
-                .WithMany(p => p.AffectingReadings);
+        // TPH mapping for controllers
+        modelBuilder.Entity<Controller>()
+            .HasDiscriminator<string>("ControllerType")
+            .HasValue<WaterPumpController>("WaterPump");
 
-            modelBuilder.Entity<Controller>()
-                .HasOne(c => c.Greenhouse)
-                .WithMany(g => g.Controllers)
-                .HasForeignKey(c => c.GreenhouseId);
+        // Controller ID not auto-generated
+        modelBuilder.Entity<Controller>()
+            .Property(c => c.Id)
+            .ValueGeneratedNever();
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Greenhouses)
-                .WithOne(g => g.User)
-                .HasForeignKey(g => g.UserId);
-            modelBuilder.Entity<Alert>()
-                .Property(a => a.Type)
-                .HasConversion<string>();
+        // Sensor ID not auto-generated
+        modelBuilder.Entity<Sensor>()
+            .Property(s => s.Id)
+            .ValueGeneratedNever();
 
+        // Many-to-Many: Alert <-> SensorReading
+        modelBuilder.Entity<Alert>()
+            .HasMany(a => (ICollection<SensorReading>)a.TriggeringSensorReadings)
+            .WithMany(sr => sr.TriggeredAlerts)
+            .UsingEntity(
+                "AlertSensorReading",
+                l => l.HasOne(typeof(SensorReading)).WithMany().HasForeignKey("SensorReadingId"),
+                r => r.HasOne(typeof(Alert)).WithMany().HasForeignKey("AlertId"));
 
-            base.OnModelCreating(modelBuilder);
-        }
+        // Many-to-Many: Alert <-> ControllerAction
+        modelBuilder.Entity<Alert>()
+            .HasMany(a => (ICollection<ControllerAction>)a.TriggeringActions)
+            .WithMany(ca => ca.TriggeredAlerts)
+            .UsingEntity(
+                "AlertControllerAction",
+                l => l.HasOne(typeof(ControllerAction)).WithMany().HasForeignKey("ControllerActionId"),
+                r => r.HasOne(typeof(Alert)).WithMany().HasForeignKey("AlertId"));
     }
 }

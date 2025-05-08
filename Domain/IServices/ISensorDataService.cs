@@ -24,11 +24,17 @@ namespace Domain.IServices
 
         // Add a new sensor reading
         Task AddSensorReadingAsync(SensorReading reading);
-        
+
         //Trigger alert if threshold exceeded
         Task TriggerAlertIfThresholdExceededAsync(SensorReading reading);
-        
+
         //Get all alerts caused by sensor readings
         Task<IEnumerable<Alert>> GetAllSensorsReadingAlertsAsync();
+
+        //Add a new sensor
+        Task AddSensorAsync(Sensor sensor);
+        
+        //Delete a sensor
+        Task DeleteSensorAsync(int sensorId);
     }
 }

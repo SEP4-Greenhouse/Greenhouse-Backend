@@ -8,8 +8,8 @@ namespace EFCGreenhouse
         public GreenhouseDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<GreenhouseDbContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=greenhouse;Username=postgres;Password=postgres");
-
+            var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
+            optionsBuilder.UseNpgsql(connectionString);
             return new GreenhouseDbContext(optionsBuilder.Options);
         }
     }

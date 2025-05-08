@@ -39,7 +39,8 @@ namespace GreenhouseService.Services
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<SensorReading>> GetReadingsPaginatedAsync(int sensorId, int pageNumber, int pageSize)
+        public async Task<IEnumerable<SensorReading>> GetReadingsPaginatedAsync(int sensorId, int pageNumber,
+            int pageSize)
         {
             return await _context.SensorReadings
                 .Where(r => r.SensorId == sensorId)
@@ -73,6 +74,8 @@ namespace GreenhouseService.Services
 
         public async Task TriggerAlertIfThresholdExceededAsync(SensorReading reading)
         {
+            //thresholds for temperature and humidity (example values)
+            // TODO: Add thresholds class for each sensor type for setting thresholds from the UI
             double tempThreshold = 35.0;
             double humidityThreshold = 20.0;
 
@@ -99,6 +102,30 @@ namespace GreenhouseService.Services
             return await _context.Alerts
                 .Where(a => a.Type == Alert.AlertType.Sensor)
                 .ToListAsync();
+        }
+
+        public async Task AddSensorAsync(Sensor sensor)
+        {
+            if (sensor == null)
+                throw new ArgumentNullException(nameof(sensor));
+            if (await _context.Sensors.AnyAsync(s => s.Id == sensor.Id))
+                throw new InvalidOperationException($"A sensor with ID {sensor.Id} already exists.");
+
+            await _context.Sensors.AddAsync(sensor);
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task DeleteSensorAsync(int sensorId)
+        {
+            if (sensorId <= 0)
+                throw new ArgumentException("Sensor ID must be greater than zero.");
+
+            var sensor = await _context.Sensors.Include(s => s.Readings).FirstOrDefaultAsync(s => s.Id == sensorId);
+            if (sensor == null)
+                throw new KeyNotFoundException("Sensor not found.");
+
+            _context.Sensors.Remove(sensor);
+            await _context.SaveChangesAsync();
         }
     }
 }
