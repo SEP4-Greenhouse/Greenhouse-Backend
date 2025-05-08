@@ -1,12 +1,12 @@
-using Action = Domain.Entities.Action;
+using Domain.Entities;
 
 namespace Domain.IRepositories;
 
 public interface IActionRepository
 {
-    Task<Action?> GetByIdAsync(int id);
-    Task<IEnumerable<Action>> GetAllAsync();
-    Task AddAsync(Action action);
-    Task UpdateAsync(Action action);
+    Task<ControllerAction?> GetByIdAsync(int id);
+    Task<IEnumerable<ControllerAction>> GetAllAsync();
+    Task AddAsync(ControllerAction controllerAction);
+    Task UpdateAsync(ControllerAction controllerAction);
     Task DeleteAsync(int id);
 }

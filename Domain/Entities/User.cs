@@ -8,7 +8,7 @@ public class User
     [Required] [MaxLength(100)] public string Name { get; private set; }
     [Required] [EmailAddress] public string Email { get; private set; }
     [Required] public string HashedPassword { get; private set; }
-    
+
     public ICollection<Greenhouse> Greenhouses { get; private set; } = new List<Greenhouse>();
 
     public User(string name, string email, string hashedPassword)

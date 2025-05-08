@@ -1,86 +1,70 @@
+using Domain.IClients;
 using Domain.IRepositories;
 using Domain.IServices;
-using Domain.IClients;
 using EFCGreenhouse.Repositories;
 using EFCGreenhouse;
 using GreenhouseService.Services;
 using Microsoft.EntityFrameworkCore;
-using MqttClient;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Register services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// 🔹 Register your controller dependencies
-builder.Services.AddScoped<IMlModelService, MlModelService>();
-
-// 🔹 Register controllers support
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-// 🔹 Register the ML model service
-builder.Services.AddHttpClient<IMlModelService, MlModelService>();
-
-// 🔹 Register the EF Core DbContext
+builder.Services.AddScoped<IMlModelService, MlModelService>();
 builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
+builder.Services.AddScoped<IActionRepository, ActionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 
-// 🔹 Register the DbContext with SQL
+builder.Services.AddHttpClient<ImlHttpClient, MLHttpClient>(client =>
+{
+    client.BaseAddress = new Uri("http://host.docker.internal:8000");
+});
+
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
-    options.UseSqlite("Data Source=greenhouse.db"));
+{
+    var connectionString = Environment.GetEnvironmentVariable("GREENHOUSE_DB_CONNECTION");
+    options.UseNpgsql(connectionString);
+});
 
-builder.Services.AddScoped<IMqttListener, MqttListener>();
-
-// 🔹 Add CORS policy
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173")  // for the frontend
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
+builder.Services.AddLogging();
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greenhouse API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greenhouse API V1");
+    c.RoutePrefix = string.Empty;
+});
 
-app.UseHttpsRedirection();
+app.UseCors();
 
-app.UseRouting();     // 🔹 (IMPORTANT for CORS!)
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
 
-app.UseCors();        // 🔹 (Enable CORS AFTER routing)
+    await next();
 
+    logger.LogInformation("Finished processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
+});
+
+app.UseRouting();
 app.UseAuthorization();
-
-// 🔹 Map controllers
 app.MapControllers();
-
-
-// 🔹Initialize MQTT connection at startup
-//var mqttClient = new MqttClient.MqttClient();
-//await mqttClient.ConnectAsync();
-
-using (var scope = app.Services.CreateScope())
-{
-    var mqttListener = scope.ServiceProvider.GetRequiredService<IMqttListener>();
-    await mqttListener.StartListeningAsync();
-}
-
-app.Run();
-
-// (WeatherForecast record is not needed for your app, but it's okay to leave it)
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.Run("http://0.0.0.0:5001");
