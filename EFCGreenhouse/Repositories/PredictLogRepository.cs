@@ -22,7 +22,7 @@ namespace EFCGreenhouse.Repositories
         public async Task<IEnumerable<PredictionLog>> GetAllAsync()
         {
             return await _context.PredictionLogs
-                .OrderByDescending(p => p.Timestamp) // Use the correct property
+                .OrderByDescending(p => p.Timestamp)
                 .ToListAsync();
         }
 

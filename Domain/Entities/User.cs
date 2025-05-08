@@ -1,11 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Entities;
 
 public class User
 {
-    public int Id { get; private set; }
-    public string Name { get; private set; }
-    public string Email { get; private set; }
-    public string HashedPassword { get; private set; }
+    [Key] public int Id { get; private set; }
+    [Required] [MaxLength(100)] public string Name { get; private set; }
+    [Required] [EmailAddress] public string Email { get; private set; }
+    [Required] public string HashedPassword { get; private set; }
+    
+    public ICollection<Greenhouse> Greenhouses { get; private set; } = new List<Greenhouse>();
 
     public User(string name, string email, string hashedPassword)
     {
@@ -14,8 +18,10 @@ public class User
         HashedPassword = hashedPassword;
     }
 
-    private User() { } // Required by EF Core
-    
+    private User()
+    {
+    }
+
     public void ChangePassword(string newHashedPassword)
     {
         HashedPassword = newHashedPassword;

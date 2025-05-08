@@ -1,12 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Entities;
 
 public class Action
 {
-    public int Id { get; private set; }
-    public DateTime Timestamp { get; private set; }
-    public string Type { get; private set; }
-    public double Value { get; private set; }
-    public int ControllerId { get; private set; }
+    [Key] public int Id { get; private set; }
+
+    [Required] public DateTime Timestamp { get; private set; }
+
+    [Required] [MaxLength(100)] public string Type { get; private set; }
+    [Required] public double Value { get; private set; }
+    [ForeignKey("Controller")] public int ControllerId { get; private set; }
     public Controller Controller { get; private set; }
     public IReadOnlyCollection<Alert> TriggeredAlerts { get; private set; }
 
@@ -23,7 +28,9 @@ public class Action
         TriggeredAlerts = new List<Alert>();
     }
 
-    private Action() { }
+    private Action()
+    {
+    }
 
     public Alert TriggerAlert(string type, string message)
     {

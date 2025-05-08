@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.Entities;
 
 public class Alert
 {
-    public int Id { get; private set; }
-    public string Type { get; private set; }
-    public string Message { get; private set; }
+    [Key] public int Id { get; private set; }
+    [Required] [MaxLength(100)] public string Type { get; private set; }
+    [Required] public string Message { get; private set; }
     public IReadOnlyCollection<SensorReading> TriggeringSensorReadings { get; private set; }
     public IReadOnlyCollection<Action> TriggeringActions { get; private set; }
 
@@ -21,7 +23,9 @@ public class Alert
         TriggeringActions = new List<Action>();
     }
 
-    private Alert() { }
+    private Alert()
+    {
+    }
 
     public void UpdateMessage(string newMessage)
     {
