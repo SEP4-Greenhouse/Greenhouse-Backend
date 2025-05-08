@@ -1,13 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Entities;
 
 public class Greenhouse
 {
-    public int Id { get; private set; }
-    public string PlantType { get; private set; }
-        
-    public int UserId { get; private set; }
+    [Key] public int Id { get; private set; }
+    [Required] [MaxLength(100)] public string PlantType { get; private set; }
+    [ForeignKey("User")] public int UserId { get; private set; }
     public User User { get; private set; }
-        
+
     public ICollection<Plant> Plants { get; private set; } = new List<Plant>();
     public ICollection<Sensor> Sensors { get; private set; } = new List<Sensor>();
     public ICollection<Controller> Controllers { get; private set; } = new List<Controller>();
@@ -19,7 +21,9 @@ public class Greenhouse
         UserId = user.Id;
     }
 
-    private Greenhouse() { } // Required by EF Core
+    private Greenhouse()
+    {
+    } // Required by EF Core
 
     public void UpdatePlantType(string newPlantType)
     {

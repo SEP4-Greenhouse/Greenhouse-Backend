@@ -1,11 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Entities;
 
 public class Controller
 {
-    public int Id { get; private set; }
-    public string Type { get; private set; }
-    public string Status { get; private set; }
-    public int GreenhouseId { get; private set; }
+    [Key] public int Id { get; private set; }
+    [Required] [MaxLength(100)] public string Type { get; private set; }
+    [Required] [MaxLength(100)] public string Status { get; private set; }
+    [ForeignKey("Greenhouse")] public int GreenhouseId { get; private set; }
     public Greenhouse Greenhouse { get; private set; }
     public IReadOnlyCollection<Action> Actions { get; private set; }
 
@@ -23,7 +26,9 @@ public class Controller
         Actions = new List<Action>();
     }
 
-    private Controller() { }
+    private Controller()
+    {
+    }
 
     public void UpdateStatus(string newStatus)
     {

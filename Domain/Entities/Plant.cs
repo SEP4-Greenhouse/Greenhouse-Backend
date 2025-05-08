@@ -1,15 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Entities;
 
 public class Plant
 {
-    public int Id { get; private set; }
-    public string Species { get; private set; }
-    public DateTime PlantingDate { get; private set; }
-    public string GrowthStage { get; private set; }
-        
-    public int GreenhouseId { get; private set; }
+    [Key] public int Id { get; private set; }
+    [Required] [MaxLength(100)] public string Species { get; private set; }
+    [Required] public DateTime PlantingDate { get; private set; }
+    [Required] [MaxLength(100)] public string GrowthStage { get; private set; }
+    [ForeignKey("Greenhouse")] public int GreenhouseId { get; private set; }
     public Greenhouse Greenhouse { get; private set; }
-        
+
     public ICollection<SensorReading> AffectingReadings { get; private set; } = new List<SensorReading>();
 
     public Plant(string species, DateTime plantingDate, string growthStage, Greenhouse greenhouse)
@@ -21,7 +23,9 @@ public class Plant
         GreenhouseId = greenhouse.Id;
     }
 
-    private Plant() { } // Required by EF Core
+    private Plant()
+    {
+    } // Required by EF Core
 
     public void UpdateGrowthStage(string newGrowthStage)
     {
