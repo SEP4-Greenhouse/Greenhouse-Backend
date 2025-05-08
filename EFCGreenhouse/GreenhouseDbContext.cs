@@ -71,6 +71,10 @@ namespace EFCGreenhouse
                 .HasMany(u => u.Greenhouses)
                 .WithOne(g => g.User)
                 .HasForeignKey(g => g.UserId);
+            modelBuilder.Entity<Alert>()
+                .Property(a => a.Type)
+                .HasConversion<string>();
+
 
             base.OnModelCreating(modelBuilder);
         }

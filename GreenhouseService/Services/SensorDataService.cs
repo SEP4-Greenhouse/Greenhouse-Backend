@@ -14,89 +14,90 @@ namespace GreenhouseService.Services
             _context = context;
         }
 
-        public async Task<SensorReading?> GetReadingByIdAsync(int id)
+        public async Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync()
+        {
+            return await _context.SensorReadings
+                .GroupBy(r => r.SensorId)
+                .Select(g => g.OrderByDescending(r => r.TimeStamp).First())
+                .Include(r => r.Sensor)
+                .ToListAsync();
+        }
+
+        public async Task<IDictionary<int, IEnumerable<SensorReading>>> GetReadingsBySensorAsync()
         {
             return await _context.SensorReadings
                 .Include(r => r.Sensor)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .GroupBy(r => r.SensorId)
+                .ToDictionaryAsync(g => g.Key, g => g.AsEnumerable());
         }
 
-        public async Task<IEnumerable<SensorReading>> GetReadingsBySensorIdAsync(int sensorId)
+        public async Task<IEnumerable<SensorReading>> GetReadingsByTimestampRangeAsync(DateTime start, DateTime end)
+        {
+            return await _context.SensorReadings
+                .Where(r => r.TimeStamp >= start && r.TimeStamp <= end)
+                .Include(r => r.Sensor)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SensorReading>> GetReadingsPaginatedAsync(int sensorId, int pageNumber, int pageSize)
         {
             return await _context.SensorReadings
                 .Where(r => r.SensorId == sensorId)
                 .OrderByDescending(r => r.TimeStamp)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<SensorReading>> GetLatestReadingsAsync(int count)
+        public async Task<double> GetAverageReadingForSensorAsync(int sensorId, DateTime start, DateTime end)
         {
             return await _context.SensorReadings
-                .OrderByDescending(r => r.TimeStamp)
-                .Take(count)
-                .Include(r => r.Sensor)
-                .ToListAsync();
+                .Where(r => r.SensorId == sensorId && r.TimeStamp >= start && r.TimeStamp <= end)
+                .AverageAsync(r => r.Value);
+        }
+
+        public async Task<IDictionary<int, SensorReading>> GetLatestReadingBySensorAsync()
+        {
+            return await _context.SensorReadings
+                .GroupBy(r => r.SensorId)
+                .Select(g => g.OrderByDescending(r => r.TimeStamp).First())
+                .ToDictionaryAsync(r => r.SensorId);
         }
 
         public async Task AddSensorReadingAsync(SensorReading reading)
         {
             await _context.SensorReadings.AddAsync(reading);
             await _context.SaveChangesAsync();
+            await TriggerAlertIfThresholdExceededAsync(reading);
         }
 
-        public async Task<IEnumerable<SensorReading>> GetReadingsInRangeAsync(int sensorId, DateTime start, DateTime end)
+        public async Task TriggerAlertIfThresholdExceededAsync(SensorReading reading)
         {
-            return await _context.SensorReadings
-                .Where(r => r.SensorId == sensorId && r.TimeStamp >= start && r.TimeStamp <= end)
-                .OrderBy(r => r.TimeStamp)
-                .ToListAsync();
-        }
+            double tempThreshold = 35.0;
+            double humidityThreshold = 20.0;
 
-        public async Task TriggerAlertIfNecessaryAsync(SensorReading reading)
-        {
-            // Adjust thresholds as per your requirements (not implemented yet)
-            double tempThreshold = 35.0; 
-            double humidityThreshold = 20.0; 
-
-            bool shouldTrigger = false;
-            string message = "";
-            string type = "";
+            Alert? alert = null;
 
             if (reading.Sensor.Type.ToLower().Contains("temperature") && reading.Value > tempThreshold)
             {
-                shouldTrigger = true;
-                message = $"High temperature detected: {reading.Value} {reading.Unit}";
-                type = "Temperature";
+                alert = new Alert(Alert.AlertType.Sensor, $"High temperature detected: {reading.Value} {reading.Unit}");
             }
             else if (reading.Sensor.Type.ToLower().Contains("humidity") && reading.Value < humidityThreshold)
             {
-                shouldTrigger = true;
-                message = $"Low humidity detected: {reading.Value} {reading.Unit}";
-                type = "Humidity";
+                alert = new Alert(Alert.AlertType.Sensor, $"Low humidity detected: {reading.Value} {reading.Unit}");
             }
 
-            if (shouldTrigger)
+            if (alert != null)
             {
-                var alert = reading.TriggerAlert(type, message);
                 await _context.Alerts.AddAsync(alert);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<IEnumerable<SensorReading>> GetLatestReadingsForAllSensorsAsync()
+        public async Task<IEnumerable<Alert>> GetAllSensorsReadingAlertsAsync()
         {
-            return await _context.SensorReadings
-                .GroupBy(r => r.SensorId)
-                .Select(group => group.OrderByDescending(r => r.TimeStamp).First())
-                .Include(r => r.Sensor)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<SensorReading>> GetReadingsBySensorTypeAsync(string sensorType)
-        {
-            return await _context.SensorReadings
-                .Where(r => r.Sensor.Type.Equals(sensorType, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(r => r.TimeStamp)
+            return await _context.Alerts
+                .Where(a => a.Type == Alert.AlertType.Sensor)
                 .ToListAsync();
         }
     }

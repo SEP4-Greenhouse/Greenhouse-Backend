@@ -4,16 +4,29 @@ namespace Domain.Entities;
 
 public class Alert
 {
-    [Key] public int Id { get; private set; }
-    [Required] [MaxLength(100)] public string Type { get; private set; }
-    [Required] public string Message { get; private set; }
+    public enum AlertType
+    {
+        Sensor,
+        Controller,
+        Manual,
+        System,
+        Unknown
+    }
+
+    [Key]
+    public int Id { get; private set; }
+
+    [Required]
+    public AlertType Type { get; private set; }
+
+    [Required]
+    public string Message { get; private set; }
+
     public IReadOnlyCollection<SensorReading> TriggeringSensorReadings { get; private set; }
     public IReadOnlyCollection<Action> TriggeringActions { get; private set; }
 
-    public Alert(string type, string message)
+    public Alert(AlertType type, string message)
     {
-        if (string.IsNullOrWhiteSpace(type))
-            throw new ArgumentException("Type cannot be empty.");
         if (string.IsNullOrWhiteSpace(message))
             throw new ArgumentException("Message cannot be empty.");
 
@@ -23,9 +36,7 @@ public class Alert
         TriggeringActions = new List<Action>();
     }
 
-    private Alert()
-    {
-    }
+    private Alert() { }
 
     public void UpdateMessage(string newMessage)
     {
