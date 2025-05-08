@@ -8,55 +8,49 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Register services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
-// 🔹 Register your controller dependencies
-builder.Services.AddScoped<IMlModelService, MlModelService>();
 
-// 🔹 Register the ML HTTP client
+builder.Services.AddScoped<IMlModelService, MlModelService>();
+builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
+builder.Services.AddScoped<IActionRepository, ActionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISensorDataService, SensorDataService>();
+
 builder.Services.AddHttpClient<ImlHttpClient, MLHttpClient>(client =>
 {
     client.BaseAddress = new Uri("http://host.docker.internal:8000");
 });
 
-// 🔹 Register the EF Core DbContext
-builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
-
-// 🔹 Register the DbContext with SQL
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
-    options.UseSqlite("Data Source=greenhouse.db"));
+    options.UseNpgsql("Host=localhost;Port=5432;Database=greenhouse;Username=postgres;Password=postgres"));
 
-// 🔹 Add CORS policy for frontend at localhost:5173
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173")  // for the frontend
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-// 🔹 Add logging
 builder.Services.AddLogging();
 
 var app = builder.Build();
 
-// 🔹 Add diagnostics and logging
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greenhouse API V1");
-    c.RoutePrefix = string.Empty; // Access Swagger at the root URL
+    c.RoutePrefix = string.Empty;
 });
 
-// 🔹 Enable CORS (IMPORTANT - Enable CORS after routing)
-app.UseCors();       
+app.UseCors();
 
-// 🔹 Middleware to log request and response data
 app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
@@ -67,11 +61,7 @@ app.Use(async (context, next) =>
     logger.LogInformation("Finished processing request: {Method} {Path}", context.Request.Method, context.Request.Path);
 });
 
-app.UseRouting();     
-
-// 🔹 Enable authorization (if needed)
+app.UseRouting();
 app.UseAuthorization();
-
-// 🔹 Map controllers
 app.MapControllers();
 app.Run("http://0.0.0.0:5001");
