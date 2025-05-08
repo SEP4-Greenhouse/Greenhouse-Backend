@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Greenhouse-Backend.sln
+
+      - name: Build
+        run: dotnet build Greenhouse-Backend.sln --no-restore --configuration Release
+
