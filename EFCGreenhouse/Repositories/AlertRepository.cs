@@ -1,38 +1,69 @@
 using Domain.Entities;
 using Domain.IRepositories;
+using EFCGreenhouse;
 using Microsoft.EntityFrameworkCore;
-
-namespace EFCGreenhouse.Repositories;
+using Microsoft.Extensions.Logging;
 
 public class AlertRepository : IAlertRepository
 {
     private readonly GreenhouseDbContext _context;
+    private readonly ILogger<AlertRepository> _logger;
 
-    public AlertRepository(GreenhouseDbContext context)
+    public AlertRepository(GreenhouseDbContext context, ILogger<AlertRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Alert?> GetByIdAsync(int id)
     {
-        return await _context.Set<Alert>().FindAsync(id);
+        return await _context.Alerts
+            .Include(a => a.TriggeringSensorReadings)
+            .Include(a => a.TriggeringActions)
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<IEnumerable<Alert>> GetAllAsync()
     {
-        return await _context.Set<Alert>().ToListAsync();
+        return await _context.Alerts
+            .AsNoTracking()
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Alert>> GetBySensorTypeAsync()
+    {
+        return await _context.Alerts
+            .AsNoTracking()
+            .Where(a => a.Type == Alert.AlertType.Sensor)
+            .ToListAsync();
     }
 
     public async Task AddAsync(Alert alert)
     {
-        await _context.Set<Alert>().AddAsync(alert);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.Alerts.AddAsync(alert);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding alert");
+            throw;
+        }
     }
 
     public async Task UpdateAsync(Alert alert)
     {
-        _context.Set<Alert>().Update(alert);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Entry(alert).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating alert {Id}", alert.Id);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(int id)
@@ -40,8 +71,16 @@ public class AlertRepository : IAlertRepository
         var alert = await GetByIdAsync(id);
         if (alert != null)
         {
-            _context.Set<Alert>().Remove(alert);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Alerts.Remove(alert);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting alert {Id}", id);
+                throw;
+            }
         }
     }
 }

@@ -1,38 +1,58 @@
 using Domain.Entities;
 using Domain.IRepositories;
+using EFCGreenhouse;
 using Microsoft.EntityFrameworkCore;
-
-namespace EFCGreenhouse.Repositories;
+using Microsoft.Extensions.Logging;
 
 public class ActionRepository : IActionRepository
 {
     private readonly GreenhouseDbContext _context;
+    private readonly ILogger<ActionRepository> _logger;
 
-    public ActionRepository(GreenhouseDbContext context)
+    public ActionRepository(GreenhouseDbContext context, ILogger<ActionRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
-    public async Task<ControllerAction> GetByIdAsync(int id)
+    public async Task<ControllerAction?> GetByIdAsync(int id)
     {
-        return await _context.Set<ControllerAction>().FindAsync(id);
+        return await _context.ControllerActions.FindAsync(id);
     }
 
     public async Task<IEnumerable<ControllerAction>> GetAllAsync()
     {
-        return await _context.Set<ControllerAction>().ToListAsync();
+        return await _context.ControllerActions
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task AddAsync(ControllerAction controllerAction)
     {
-        await _context.Set<ControllerAction>().AddAsync(controllerAction);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.ControllerActions.AddAsync(controllerAction);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding controller action {Id}", controllerAction.Id);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(ControllerAction controllerAction)
     {
-        _context.Set<ControllerAction>().Update(controllerAction);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Entry(controllerAction).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating controller action {Id}", controllerAction.Id);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(int id)
@@ -40,8 +60,16 @@ public class ActionRepository : IActionRepository
         var action = await GetByIdAsync(id);
         if (action != null)
         {
-            _context.Set<ControllerAction>().Remove(action);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.ControllerActions.Remove(action);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting controller action {Id}", id);
+                throw;
+            }
         }
     }
 }

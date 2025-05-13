@@ -23,6 +23,11 @@ public class SensorRepository : ISensorRepository
         return await _context.Set<Sensor>().ToListAsync();
     }
 
+    public async Task<bool> ExistsByIdAsync(int id)
+    {
+        return await _context.Set<Sensor>().AnyAsync(s => s.Id == id);
+    }
+
     public async Task AddAsync(Sensor sensor)
     {
         await _context.Set<Sensor>().AddAsync(sensor);

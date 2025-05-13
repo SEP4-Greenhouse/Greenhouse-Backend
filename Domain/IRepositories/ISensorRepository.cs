@@ -9,4 +9,5 @@ public interface ISensorRepository
     Task AddAsync(Sensor sensor);
     Task UpdateAsync(Sensor sensor);
     Task DeleteAsync(int id);
+    Task<bool> ExistsByIdAsync(int id);
 }

@@ -46,6 +46,7 @@ public class SensorReading
             throw new ArgumentException("Message cannot be empty.");
 
         var alert = new Alert(alertType, message);
+        alert.AddTriggeringSensorReading(this);
         TriggeredAlerts.Add(alert);
         return alert;
     }
