@@ -1,21 +1,13 @@
 using Domain.Entities;
 using Domain.IRepositories;
-using EFCGreenhouse.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace EFCGreenhouse.Repositories;
 
-public class SensorReadingRepository : BaseRepository<SensorReading>, ISensorReadingRepository
+public class SensorReadingRepository(GreenhouseDbContext context, ILogger<SensorReadingRepository> logger)
+    : BaseRepository<SensorReading>(context), ISensorReadingRepository
 {
-    private readonly ILogger<SensorReadingRepository> _logger;
-
-    public SensorReadingRepository(GreenhouseDbContext context, ILogger<SensorReadingRepository> logger) 
-        : base(context)
-    {
-        _logger = logger;
-    }
-
     public async Task<IEnumerable<SensorReading>> GetLatestFromAllSensorsAsync()
     {
         try
@@ -33,7 +25,7 @@ public class SensorReadingRepository : BaseRepository<SensorReading>, ISensorRea
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting latest readings from all sensors");
+            logger.LogError(ex, "Error getting latest readings from all sensors");
             throw;
         }
     }
@@ -53,7 +45,7 @@ public class SensorReadingRepository : BaseRepository<SensorReading>, ISensorRea
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error grouping readings by sensor");
+            logger.LogError(ex, "Error grouping readings by sensor");
             throw;
         }
     }
@@ -105,7 +97,7 @@ public class SensorReadingRepository : BaseRepository<SensorReading>, ISensorRea
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting latest readings by sensor");
+            logger.LogError(ex, "Error getting latest readings by sensor");
             throw;
         }
     }

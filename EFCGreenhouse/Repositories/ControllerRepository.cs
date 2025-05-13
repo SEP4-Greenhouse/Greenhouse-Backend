@@ -1,16 +1,12 @@
 using Domain.Entities;
 using Domain.IRepositories;
-using EFCGreenhouse.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse.Repositories;
 
-public class ControllerRepository : BaseRepository<Controller>, IControllerRepository
+public class ControllerRepository(GreenhouseDbContext context)
+    : BaseRepository<Controller>(context), IControllerRepository
 {
-    public ControllerRepository(GreenhouseDbContext context) : base(context)
-    {
-    }
-
     public async Task<IEnumerable<Controller>> GetByGreenhouseIdAsync(int greenhouseId)
     {
         return await DbSet

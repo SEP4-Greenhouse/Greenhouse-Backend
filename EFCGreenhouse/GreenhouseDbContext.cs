@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse;
 
-public class GreenhouseDbContext : DbContext
+public class GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options) : DbContext(options)
 {
-    public GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<User> Users => Set<User>();
     public DbSet<Greenhouse> Greenhouses => Set<Greenhouse>();
     public DbSet<Plant> Plants => Set<Plant>();
@@ -24,8 +19,7 @@ public class GreenhouseDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        
+
 
         // Many-to-Many: Plant <-> SensorReading
         modelBuilder.Entity<Plant>()

@@ -1,4 +1,3 @@
-using Domain.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse.Repositories;
@@ -8,7 +7,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     protected readonly GreenhouseDbContext Context;
     protected readonly DbSet<T> DbSet;
 
-    public BaseRepository(GreenhouseDbContext context)
+    protected BaseRepository(GreenhouseDbContext context)
     {
         Context = context;
         DbSet = Context.Set<T>();
