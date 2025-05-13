@@ -6,19 +6,12 @@ namespace GreenhouseApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(int id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var user = await userService.GetUserByIdAsync(id);
         if (user == null)
             return NotFound("User not found.");
         return Ok(user);
@@ -27,7 +20,7 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        var users = await _userService.GetAllUsersAsync();
+        var users = await userService.GetAllUsersAsync();
         return Ok(users);
     }
 
@@ -37,7 +30,7 @@ public class UserController : ControllerBase
         try
         {
             var userDto = new UserDto(0, createUserDto.Name, createUserDto.Email);
-            await _userService.AddUserAsync(userDto, createUserDto.Password);
+            await userService.AddUserAsync(userDto, createUserDto.Password);
             return CreatedAtAction(nameof(GetUserById), new { id = userDto.Id }, userDto);
         }
         catch (InvalidOperationException ex)
@@ -54,7 +47,7 @@ public class UserController : ControllerBase
 
         try
         {
-            await _userService.UpdateUserAsync(userDto);
+            await userService.UpdateUserAsync(userDto);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -72,7 +65,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userService.DeleteUserAsync(id);
+            await userService.DeleteUserAsync(id);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

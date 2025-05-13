@@ -1,3 +1,5 @@
+namespace Domain.IRepositories;
+
 public interface IBaseRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(int id);

@@ -7,27 +7,20 @@ using Domain.IServices;
 
 namespace GreenhouseService.Services;
 
-public class UserService : IUserService
+public class UserService(IUserRepository userRepository) : IUserService
 {
-    private readonly IUserRepository _userRepository;
-
-    public UserService(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
     public async Task<UserDto?> GetUserByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("User ID must be greater than zero.");
 
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await userRepository.GetByIdAsync(id);
         return user == null ? null : new UserDto(user.Id, user.Name, user.Email);
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
-        var users = await _userRepository.GetAllAsync();
+        var users = await userRepository.GetAllAsync();
         return users.Select(user => new UserDto(user.Id, user.Name, user.Email));
     }
 
@@ -36,13 +29,13 @@ public class UserService : IUserService
         if (string.IsNullOrWhiteSpace(password))
             throw new ArgumentException("Password cannot be empty.");
 
-        if (await _userRepository.ExistsByEmailAsync(userDto.Email))
+        if (await userRepository.ExistsByEmailAsync(userDto.Email))
             throw new InvalidOperationException("A user with the same email already exists.");
 
         var hashedPassword = HashPassword(password);
 
         var user = new User(userDto.Name, userDto.Email, hashedPassword);
-        await _userRepository.AddAsync(user);
+        await userRepository.AddAsync(user);
     }
 
     public async Task UpdateUserAsync(UserDto userDto)
@@ -50,16 +43,16 @@ public class UserService : IUserService
         if (userDto.Id <= 0)
             throw new ArgumentException("User ID must be greater than zero.");
 
-        var user = await _userRepository.GetByIdAsync(userDto.Id);
+        var user = await userRepository.GetByIdAsync(userDto.Id);
         if (user == null)
             throw new KeyNotFoundException("User not found.");
 
-        if (user.Email != userDto.Email && await _userRepository.ExistsByEmailAsync(userDto.Email))
+        if (user.Email != userDto.Email && await userRepository.ExistsByEmailAsync(userDto.Email))
             throw new InvalidOperationException("A user with the same email already exists.");
 
         user.ChangeName(userDto.Name);
         user.UpdateEmail(userDto.Email);
-        await _userRepository.UpdateAsync(user);
+        await userRepository.UpdateAsync(user);
     }
 
     public async Task DeleteUserAsync(int id)
@@ -67,11 +60,11 @@ public class UserService : IUserService
         if (id <= 0)
             throw new ArgumentException("User ID must be greater than zero.");
 
-        var user = await _userRepository.GetByIdAsync(id);
+        var user = await userRepository.GetByIdAsync(id);
         if (user == null)
             throw new KeyNotFoundException("User not found.");
 
-        await _userRepository.DeleteAsync(id);
+        await userRepository.DeleteAsync(id);
     }
 
     private string HashPassword(string password)

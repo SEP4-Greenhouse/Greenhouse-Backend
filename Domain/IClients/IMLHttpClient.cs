@@ -4,7 +4,7 @@ using Domain.Entities;
 
 namespace Domain.IClients;
 
-public interface ImlHttpClient
+public interface IMlHttpClient
 {
     Task<PredictionLog?> PredictAsync(SensorDataDto input);
 }

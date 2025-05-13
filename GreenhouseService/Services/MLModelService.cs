@@ -6,17 +6,9 @@ using Domain.IServices;
 
 namespace GreenhouseService.Services;
 
-public class MlModelService : IMlModelService
+public class MlModelService(IMlHttpClient mlHttpClient, IPredictionLogRepository predictLogRepository)
+    : IMlModelService
 {
-    private readonly ImlHttpClient _mlHttpClient;
-    private readonly IPredictionLogRepository _predictLogRepository;
-
-    public MlModelService(ImlHttpClient mlHttpClient, IPredictionLogRepository predictLogRepository)
-    {
-        _mlHttpClient = mlHttpClient;
-        _predictLogRepository = predictLogRepository;
-    }
-
     public async Task<PredictionLog?> PredictAsync(SensorDataDto input)
     {
         if (input == null || input.current == null || input.history == null || !input.history.Any())
@@ -24,7 +16,7 @@ public class MlModelService : IMlModelService
             throw new ArgumentException("Invalid sensor data input.");
         }
 
-        var result = await _mlHttpClient.PredictAsync(input);
+        var result = await mlHttpClient.PredictAsync(input);
 
         if (result == null)
         {
@@ -33,13 +25,13 @@ public class MlModelService : IMlModelService
 
         var predictionLog = new PredictionLog
         {
-            Timestamp = result.Timestamp,  
-            Status = result.Status, 
-            Suggestion = result.Suggestion,  
-            TrendAnalysis = result.TrendAnalysis 
+            Timestamp = result.Timestamp,
+            Status = result.Status,
+            Suggestion = result.Suggestion,
+            TrendAnalysis = result.TrendAnalysis
         };
 
-        await _predictLogRepository.AddAsync(predictionLog);
+        await predictLogRepository.AddAsync(predictionLog);
 
         return result;
     }

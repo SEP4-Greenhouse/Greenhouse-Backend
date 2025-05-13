@@ -19,11 +19,9 @@ public class Alert
 
     [Required] public string Message { get; private set; }
 
-    // Backing fields for EF Core
     private readonly List<SensorReading> _triggeringSensorReadings = new();
     private readonly List<ControllerAction> _triggeringActions = new();
 
-    // Read-only collections that expose the backing fields
     public IReadOnlyCollection<SensorReading> TriggeringSensorReadings => _triggeringSensorReadings.AsReadOnly();
     public IReadOnlyCollection<ControllerAction> TriggeringActions => _triggeringActions.AsReadOnly();
 
@@ -36,7 +34,6 @@ public class Alert
         Message = message;
     }
 
-    // Parameterless constructor required by EF Core
     private Alert()
     {
     }
@@ -48,7 +45,6 @@ public class Alert
         Message = newMessage;
     }
 
-    // Methods to add related entities
     public void AddTriggeringSensorReading(SensorReading reading)
     {
         if (reading == null)

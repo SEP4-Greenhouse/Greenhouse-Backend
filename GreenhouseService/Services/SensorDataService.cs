@@ -4,55 +4,46 @@ using Domain.IServices;
 
 namespace GreenhouseService.Services
 {
-    public class SensorDataService : ISensorDataService
+    public class SensorDataService(
+        ISensorRepository sensorRepository,
+        ISensorReadingRepository sensorReadingRepository,
+        IAlertRepository alertRepository)
+        : ISensorDataService
     {
-        private readonly ISensorRepository _sensorRepository;
-        private readonly ISensorReadingRepository _sensorReadingRepository;
-        private readonly IAlertRepository _alertRepository;
-
-        public SensorDataService(
-            ISensorRepository sensorRepository,
-            ISensorReadingRepository sensorReadingRepository,
-            IAlertRepository alertRepository)
-        {
-            _sensorRepository = sensorRepository;
-            _sensorReadingRepository = sensorReadingRepository;
-            _alertRepository = alertRepository;
-        }
-
         public async Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync()
         {
-            return await _sensorReadingRepository.GetLatestFromAllSensorsAsync();
+            return await sensorReadingRepository.GetLatestFromAllSensorsAsync();
         }
 
         public async Task<IDictionary<int, IEnumerable<SensorReading>>> GetReadingsBySensorAsync()
         {
-            return await _sensorReadingRepository.GetAllGroupedBySensorAsync();
+            return await sensorReadingRepository.GetAllGroupedBySensorAsync();
         }
 
         public async Task<IEnumerable<SensorReading>> GetReadingsByTimestampRangeAsync(DateTime start, DateTime end)
         {
-            return await _sensorReadingRepository.GetByTimeRangeAsync(start, end);
+            return await sensorReadingRepository.GetByTimeRangeAsync(start, end);
         }
 
-        public async Task<IEnumerable<SensorReading>> GetReadingsPaginatedAsync(int sensorId, int pageNumber, int pageSize)
+        public async Task<IEnumerable<SensorReading>> GetReadingsPaginatedAsync(int sensorId, int pageNumber,
+            int pageSize)
         {
-            return await _sensorReadingRepository.GetPaginatedAsync(sensorId, pageNumber, pageSize);
+            return await sensorReadingRepository.GetPaginatedAsync(sensorId, pageNumber, pageSize);
         }
 
         public async Task<double> GetAverageReadingForSensorAsync(int sensorId, DateTime start, DateTime end)
         {
-            return await _sensorReadingRepository.GetAverageAsync(sensorId, start, end);
+            return await sensorReadingRepository.GetAverageAsync(sensorId, start, end);
         }
 
         public async Task<IDictionary<int, SensorReading>> GetLatestReadingBySensorAsync()
         {
-            return await _sensorReadingRepository.GetLatestBySensorAsync();
+            return await sensorReadingRepository.GetLatestBySensorAsync();
         }
 
         public async Task AddSensorReadingAsync(SensorReading reading)
         {
-            await _sensorReadingRepository.AddAsync(reading);
+            await sensorReadingRepository.AddAsync(reading);
             await TriggerAlertIfThresholdExceededAsync(reading);
         }
 
@@ -76,28 +67,28 @@ namespace GreenhouseService.Services
 
             if (alert != null)
             {
-                await _alertRepository.AddAsync(alert);
+                await alertRepository.AddAsync(alert);
             }
         }
 
         public async Task<IEnumerable<Alert>> GetAllSensorsReadingAlertsAsync()
         {
-            return await _alertRepository.GetBySensorTypeAsync();
+            return await alertRepository.GetBySensorTypeAsync();
         }
 
         public async Task AddSensorAsync(Sensor sensor)
         {
             if (sensor == null)
                 throw new ArgumentNullException(nameof(sensor));
-            if (await _sensorRepository.ExistsByIdAsync(sensor.Id))
+            if (await sensorRepository.ExistsByIdAsync(sensor.Id))
                 throw new InvalidOperationException($"A sensor with ID {sensor.Id} already exists.");
 
-            await _sensorRepository.AddAsync(sensor);
+            await sensorRepository.AddAsync(sensor);
         }
-        
+
         public async Task DeleteSensorAsync(int sensorId)
         {
-            await _sensorRepository.DeleteAsync(sensorId);
+            await sensorRepository.DeleteAsync(sensorId);
         }
     }
 }

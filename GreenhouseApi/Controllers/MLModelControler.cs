@@ -8,36 +8,29 @@ namespace GreenhouseApi.Controllers;
 
 [ApiController]
 [Route("api/ml")]
-public class MlModelController : ControllerBase
+public class MlModelController(
+    IMlModelService mlModelService,
+    IPredictionLogRepository logRepo,
+    ILogger<MlModelController> logger)
+    : ControllerBase
 {
-    private readonly IMlModelService _mlModelService;
-    private readonly IPredictionLogRepository _logRepo;
-    private readonly ILogger<MlModelController> _logger;
-
-    public MlModelController(IMlModelService mlModelService, IPredictionLogRepository logRepo, ILogger<MlModelController> logger)
-    {
-        _mlModelService = mlModelService;
-        _logRepo = logRepo;
-        _logger = logger;
-    }
-
     // POST /api/ml/predict
     [HttpPost("predict")]
     public async Task<ActionResult<PredictionResultDto>> Predict([FromBody] SensorDataDto input)
     {
         if (input == null || input.current == null || input.history == null || !input.history.Any())
         {
-            _logger.LogWarning("Invalid sensor data received for prediction.");
+            logger.LogWarning("Invalid sensor data received for prediction.");
             return BadRequest("Current and history sensor data are required.");
         }
 
         try
         {
-            var result = await _mlModelService.PredictAsync(input);
+            var result = await mlModelService.PredictAsync(input);
 
             if (result == null)
             {
-                _logger.LogWarning("Prediction result is null.");
+                logger.LogWarning("Prediction result is null.");
                 return StatusCode(500, "Prediction service returned no result.");
             }
 
@@ -45,12 +38,12 @@ public class MlModelController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            _logger.LogError(ex, "Validation error occurred while processing prediction.");
+            logger.LogError(ex, "Validation error occurred while processing prediction.");
             return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error occurred while processing the prediction.");
+            logger.LogError(ex, "Unexpected error occurred while processing the prediction.");
             return StatusCode(500, "An error occurred while processing the prediction.");
         }
     }
@@ -68,23 +61,23 @@ public class MlModelController : ControllerBase
                 {
                     current = new SensorData
                     {
-                        sensorType = "Temperature",
-                        value = 26.8f,
-                        timestamp = DateTime.UtcNow
+                        SensorType = "Temperature",
+                        Value = 26.8f,
+                        Timestamp = DateTime.UtcNow
                     },
                     history = new List<SensorData>
                     {
                         new SensorData
                         {
-                            sensorType = "Temperature",
-                            value = 26.0f,
-                            timestamp = DateTime.UtcNow.AddMinutes(-5)
+                            SensorType = "Temperature",
+                            Value = 26.0f,
+                            Timestamp = DateTime.UtcNow.AddMinutes(-5)
                         },
                         new SensorData
                         {
-                            sensorType = "Temperature",
-                            value = 25.5f,
-                            timestamp = DateTime.UtcNow.AddMinutes(-10)
+                            SensorType = "Temperature",
+                            Value = 25.5f,
+                            Timestamp = DateTime.UtcNow.AddMinutes(-10)
                         }
                     }
                 },
@@ -92,23 +85,23 @@ public class MlModelController : ControllerBase
                 {
                     current = new SensorData
                     {
-                        sensorType = "Humidity",
-                        value = 34.5f,
-                        timestamp = DateTime.UtcNow
+                        SensorType = "Humidity",
+                        Value = 34.5f,
+                        Timestamp = DateTime.UtcNow
                     },
                     history = new List<SensorData>
                     {
                         new SensorData
                         {
-                            sensorType = "Humidity",
-                            value = 33.0f,
-                            timestamp = DateTime.UtcNow.AddMinutes(-5)
+                            SensorType = "Humidity",
+                            Value = 33.0f,
+                            Timestamp = DateTime.UtcNow.AddMinutes(-5)
                         },
                         new SensorData
                         {
-                            sensorType = "Humidity",
-                            value = 32.5f,
-                            timestamp = DateTime.UtcNow.AddMinutes(-10)
+                            SensorType = "Humidity",
+                            Value = 32.5f,
+                            Timestamp = DateTime.UtcNow.AddMinutes(-10)
                         }
                     }
                 }
@@ -118,7 +111,7 @@ public class MlModelController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching the latest sensor data.");
+            logger.LogError(ex, "Error occurred while fetching the latest sensor data.");
             return StatusCode(500, "An error occurred while fetching the latest sensor data.");
         }
     }
@@ -129,12 +122,12 @@ public class MlModelController : ControllerBase
     {
         try
         {
-            var logs = await _logRepo.GetAllAsync();
+            var logs = await logRepo.GetAllAsync();
             return Ok(logs);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while fetching prediction logs.");
+            logger.LogError(ex, "Error occurred while fetching prediction logs.");
             return StatusCode(500, "An error occurred while fetching prediction logs.");
         }
     }

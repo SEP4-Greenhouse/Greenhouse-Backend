@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+namespace Domain.DTOs;
+
 public class PredictionResultDto
 {
     [Required(ErrorMessage = "Timestamp is required.")]

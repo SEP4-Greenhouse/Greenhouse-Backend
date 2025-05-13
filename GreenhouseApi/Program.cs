@@ -5,6 +5,7 @@ using EFCGreenhouse.Repositories;
 using EFCGreenhouse;
 using GreenhouseService.Services;
 using Microsoft.EntityFrameworkCore;
+using ML_Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<ISensorDataService, SensorDataService>();
 
-builder.Services.AddHttpClient<ImlHttpClient, MLHttpClient>(client =>
+builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {
     client.BaseAddress = new Uri("http://host.docker.internal:8000");
 });

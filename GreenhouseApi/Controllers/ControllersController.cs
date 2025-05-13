@@ -7,21 +7,14 @@ namespace GreenhouseApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ControllersController : ControllerBase
+public class ControllersController(IControllerService controllerService) : ControllerBase
 {
-    private readonly IControllerService _controllerService;
-
-    public ControllersController(IControllerService controllerService)
-    {
-        _controllerService = controllerService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> CreateController([FromBody] Controller controller)
     {
         try
         {
-            var createdController = await _controllerService.CreateControllerAsync(controller);
+            var createdController = await controllerService.CreateControllerAsync(controller);
             return Ok(createdController);
         }
         catch (ArgumentException ex)
@@ -35,7 +28,7 @@ public class ControllersController : ControllerBase
     {
         try
         {
-            var controller = await _controllerService.GetControllerByIdAsync(id);
+            var controller = await controllerService.GetControllerByIdAsync(id);
             return Ok(controller);
         }
         catch (KeyNotFoundException ex)
@@ -49,7 +42,7 @@ public class ControllersController : ControllerBase
     {
         try
         {
-            await _controllerService.DeleteControllerAsync(id);
+            await controllerService.DeleteControllerAsync(id);
             return Ok("Controller deleted successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -70,7 +63,7 @@ public class ControllersController : ControllerBase
 
         try
         {
-            await _controllerService.UpdateControllerStatusAsync(id, newStatus);
+            await controllerService.UpdateControllerStatusAsync(id, newStatus);
             return Ok("Controller status updated successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -88,7 +81,7 @@ public class ControllersController : ControllerBase
     {
         try
         {
-            var triggeredAction = await _controllerService.TriggerControllerActionAsync(
+            var triggeredAction = await controllerService.TriggerControllerActionAsync(
                 id, controllerAction.Type, controllerAction.Value);
             return Ok(triggeredAction);
         }
