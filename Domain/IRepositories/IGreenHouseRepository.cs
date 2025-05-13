@@ -2,11 +2,6 @@ using Domain.Entities;
 
 namespace Domain.IRepositories;
 
-public interface IGreenhouseRepository
+public interface IGreenhouseRepository : IBaseRepository<Greenhouse>
 {
-    Task<Greenhouse?> GetByIdAsync(int id);
-    Task<IEnumerable<Greenhouse>> GetAllAsync();
-    Task AddAsync(Greenhouse greenhouse);
-    Task UpdateAsync(Greenhouse greenhouse);
-    Task DeleteAsync(int id);
 }

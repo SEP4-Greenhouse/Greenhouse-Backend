@@ -2,12 +2,6 @@ using Domain.Entities;
 
 namespace Domain.IRepositories;
 
-public interface ISensorRepository
+public interface ISensorRepository : IBaseRepository<Sensor>
 {
-    Task<Sensor?> GetByIdAsync(int id);
-    Task<IEnumerable<Sensor>> GetAllAsync();
-    Task AddAsync(Sensor sensor);
-    Task UpdateAsync(Sensor sensor);
-    Task DeleteAsync(int id);
-    Task<bool> ExistsByIdAsync(int id);
 }

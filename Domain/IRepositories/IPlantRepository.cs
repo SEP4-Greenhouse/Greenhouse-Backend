@@ -2,11 +2,6 @@ using Domain.Entities;
 
 namespace Domain.IRepositories;
 
-public interface IPlantRepository
+public interface IPlantRepository : IBaseRepository<Plant>
 {
-    Task<Plant?> GetByIdAsync(int id);
-    Task<IEnumerable<Plant>> GetAllAsync();
-    Task AddAsync(Plant plant);
-    Task UpdateAsync(Plant plant);
-    Task DeleteAsync(int id);
 }

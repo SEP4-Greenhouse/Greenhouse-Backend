@@ -2,12 +2,7 @@ using Domain.Entities;
 
 namespace Domain.IRepositories;
 
-public interface IUserRepository
+public interface IUserRepository : IBaseRepository<User>
 {
-    Task<User?> GetByIdAsync(int id);
-    Task<IEnumerable<User>> GetAllAsync();
-    Task AddAsync(User user);
-    Task UpdateAsync(User user);
-    Task DeleteAsync(int id);
     Task<bool> ExistsByEmailAsync(string email);
 }

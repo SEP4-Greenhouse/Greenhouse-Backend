@@ -1,39 +1,26 @@
 using Domain.Entities;
 using Domain.IRepositories;
+using EFCGreenhouse.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace EFCGreenhouse.Repositories;
 
-public class SensorReadingRepository : ISensorReadingRepository
+public class SensorReadingRepository : BaseRepository<SensorReading>, ISensorReadingRepository
 {
-    private readonly GreenhouseDbContext _context;
     private readonly ILogger<SensorReadingRepository> _logger;
 
-    public SensorReadingRepository(GreenhouseDbContext context, ILogger<SensorReadingRepository> logger)
+    public SensorReadingRepository(GreenhouseDbContext context, ILogger<SensorReadingRepository> logger) 
+        : base(context)
     {
-        _context = context;
         _logger = logger;
-    }
-
-    public async Task<SensorReading?> GetByIdAsync(int id)
-    {
-        return await _context.SensorReadings.FindAsync(id);
-    }
-
-    public async Task<IEnumerable<SensorReading>> GetAllAsync()
-    {
-        return await _context.SensorReadings
-            .AsNoTracking()
-            .ToListAsync();
     }
 
     public async Task<IEnumerable<SensorReading>> GetLatestFromAllSensorsAsync()
     {
         try
         {
-            // More efficient query using window functions
-            return await _context.SensorReadings
+            return await Context.SensorReadings
                 .FromSqlRaw(@"
                     SELECT sr.*
                     FROM (
@@ -55,7 +42,7 @@ public class SensorReadingRepository : ISensorReadingRepository
     {
         try
         {
-            var readings = await _context.SensorReadings
+            var readings = await DbSet
                 .AsNoTracking()
                 .OrderByDescending(r => r.TimeStamp)
                 .ToListAsync();
@@ -73,7 +60,7 @@ public class SensorReadingRepository : ISensorReadingRepository
 
     public async Task<IEnumerable<SensorReading>> GetByTimeRangeAsync(DateTime start, DateTime end)
     {
-        return await _context.SensorReadings
+        return await DbSet
             .AsNoTracking()
             .Where(r => r.TimeStamp >= start && r.TimeStamp <= end)
             .OrderByDescending(r => r.TimeStamp)
@@ -82,7 +69,7 @@ public class SensorReadingRepository : ISensorReadingRepository
 
     public async Task<IEnumerable<SensorReading>> GetPaginatedAsync(int sensorId, int pageNumber, int pageSize)
     {
-        return await _context.SensorReadings
+        return await DbSet
             .AsNoTracking()
             .Where(r => r.SensorId == sensorId)
             .OrderByDescending(r => r.TimeStamp)
@@ -93,7 +80,7 @@ public class SensorReadingRepository : ISensorReadingRepository
 
     public async Task<double> GetAverageAsync(int sensorId, DateTime start, DateTime end)
     {
-        return await _context.SensorReadings
+        return await DbSet
             .Where(r => r.SensorId == sensorId && r.TimeStamp >= start && r.TimeStamp <= end)
             .Select(r => r.Value)
             .AverageAsync();
@@ -103,8 +90,7 @@ public class SensorReadingRepository : ISensorReadingRepository
     {
         try
         {
-            // Use SQL for better performance with window functions
-            var latestReadings = await _context.SensorReadings
+            var latestReadings = await Context.SensorReadings
                 .FromSqlRaw(@"
                     SELECT sr.*
                     FROM (
@@ -121,52 +107,6 @@ public class SensorReadingRepository : ISensorReadingRepository
         {
             _logger.LogError(ex, "Error getting latest readings by sensor");
             throw;
-        }
-    }
-
-    public async Task AddAsync(SensorReading sensorReading)
-    {
-        try
-        {
-            await _context.SensorReadings.AddAsync(sensorReading);
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error adding sensor reading");
-            throw;
-        }
-    }
-
-    public async Task UpdateAsync(SensorReading sensorReading)
-    {
-        try
-        {
-            _context.Entry(sensorReading).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating sensor reading {Id}", sensorReading.Id);
-            throw;
-        }
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var sensorReading = await GetByIdAsync(id);
-        if (sensorReading != null)
-        {
-            try
-            {
-                _context.SensorReadings.Remove(sensorReading);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting sensor reading {Id}", id);
-                throw;
-            }
         }
     }
 }
