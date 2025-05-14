@@ -10,7 +10,7 @@ services:
     volumes:
       - ./EFCGreenhouse/greenhouse.db:/app/greenhouse.db
     environment:
-      - ConnectionStrings__DefaultConnection=Data Source=/app/greenhouse.db
+      - AIVEN_DB_CONNECTION=${AIVEN_DB_CONNECTION}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
       interval: 30s

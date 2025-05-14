@@ -20,6 +20,7 @@ builder.Services.AddScoped<IActionRepository, ActionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<ISensorDataService, SensorDataService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {
@@ -28,7 +29,7 @@ builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
 {
-    var connectionString = Environment.GetEnvironmentVariable("GREENHOUSE_DB_CONNECTION");
+    var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
     options.UseNpgsql(connectionString);
 });
 
@@ -69,3 +70,4 @@ app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
 app.Run("http://0.0.0.0:5001");
+//app.Run();

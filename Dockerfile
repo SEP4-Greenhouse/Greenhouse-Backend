@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 
@@ -6,7 +6,7 @@ COPY Greenhouse-Backend.sln ./
 COPY Domain/Domain.csproj Domain/
 COPY EFCGreenhouse/EFCGreenhouse.csproj EFCGreenhouse/
 COPY GreenhouseApi/GreenhouseApi.csproj GreenhouseApi/
-COPY MqttClient/MqttClient.csproj MqttClient/
+COPY IotClient/IotClient.csproj IotClient/
 COPY MLModelClient/MLModelClient.csproj MLModelClient/
 COPY GreenhouseService/GreenhouseService.csproj GreenhouseService/
 
@@ -19,7 +19,7 @@ RUN dotnet build Greenhouse-Backend.sln -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish Greenhouse-Backend.sln -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 
 WORKDIR /app
 
