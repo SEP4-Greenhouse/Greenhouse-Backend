@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
-    public class ControllerAction
+    public class ActuatorAction
     {
         [Key] public int Id { get; private set; }
 
@@ -13,12 +13,12 @@ namespace Domain.Entities
 
         [Required] public double Value { get; private set; }
 
-        [ForeignKey("Controller")] public int ControllerId { get; private set; }
-        public Controller Controller { get; private set; }
+        [ForeignKey("Actuator")] public int ControllerId { get; private set; }
+        public Actuator Actuator { get; private set; }
 
         public List<Alert> TriggeredAlerts { get; private set; }
 
-        public ControllerAction(DateTime timestamp, string type, double value, Controller controller)
+        public ActuatorAction(DateTime timestamp, string type, double value, Actuator actuator)
         {
             if (string.IsNullOrWhiteSpace(type))
                 throw new ArgumentException("Type cannot be empty.");
@@ -26,12 +26,12 @@ namespace Domain.Entities
             Timestamp = timestamp;
             Type = type;
             Value = value;
-            Controller = controller ?? throw new ArgumentNullException(nameof(controller));
-            ControllerId = controller.Id;
+            Actuator = actuator ?? throw new ArgumentNullException(nameof(actuator));
+            ControllerId = actuator.Id;
             TriggeredAlerts = new List<Alert>();
         }
 
-        private ControllerAction()
+        private ActuatorAction()
         {
         }
 

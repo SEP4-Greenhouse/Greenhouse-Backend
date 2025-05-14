@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
-    public abstract class Controller
+    public abstract class Actuator
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -17,17 +17,17 @@ namespace Domain.Entities
 
         public Greenhouse Greenhouse { get; private set; }
 
-        public List<ControllerAction> Actions { get; private set; }
+        public List<ActuatorAction> Actions { get; private set; }
 
         // Parameterless constructor for EF Core
-        protected Controller()
+        protected Actuator()
         {
             Type = string.Empty;
             Status = string.Empty;
-            Actions = new List<ControllerAction>();
+            Actions = new List<ActuatorAction>();
         }
 
-        protected Controller(int id, string type, string status, Greenhouse greenhouse)
+        protected Actuator(int id, string type, string status, Greenhouse greenhouse)
         {
             if (id <= 0)
                 throw new ArgumentException("ID must be greater than zero.");
@@ -41,7 +41,7 @@ namespace Domain.Entities
             Status = status;
             Greenhouse = greenhouse ?? throw new ArgumentNullException(nameof(greenhouse));
             GreenhouseId = greenhouse.Id;
-            Actions = new List<ControllerAction>();
+            Actions = new List<ActuatorAction>();
         }
 
         public void UpdateStatus(string newStatus)
@@ -51,13 +51,13 @@ namespace Domain.Entities
             Status = newStatus;
         }
 
-        public ControllerAction InitiateAction(DateTime timestamp, string type, double value)
+        public ActuatorAction InitiateAction(DateTime timestamp, string type, double value)
         {
             if (string.IsNullOrWhiteSpace(type))
                 throw new ArgumentException("ControllerControllerAction type cannot be empty.");
 
-            var action = new ControllerAction(timestamp, type, value, this);
-            ((List<ControllerAction>)Actions).Add(action);
+            var action = new ActuatorAction(timestamp, type, value, this);
+            ((List<ActuatorAction>)Actions).Add(action);
             return action;
         }
     }

@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace GreenhouseApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class SensorDataController(ISensorDataService sensorDataService) : ControllerBase
+[Route("api/[actuator]")]
+public class SensorDataController(ISensorService sensorService) : ControllerBase
 {
     // Add a new sensor
     [HttpPost("sensor")]
     public async Task<IActionResult> AddSensor([FromBody] Sensor sensor)
     {
-        await sensorDataService.AddSensorAsync(sensor);
+        await sensorService.AddAsync(sensor);
         return Ok("Sensor added successfully.");
     }
 
@@ -20,7 +20,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     [HttpPost("sensor/reading")]
     public async Task<IActionResult> AddSensorReading([FromBody] SensorReading reading)
     {
-        await sensorDataService.AddSensorReadingAsync(reading);
+        await sensorService.AddSensorReadingAsync(reading);
         return Ok("Sensor reading added successfully.");
     }
 
@@ -30,7 +30,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     {
         try
         {
-            await sensorDataService.DeleteSensorAsync(sensorId);
+            await sensorService.DeleteAsync(sensorId);
             return Ok("Sensor deleted successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -47,7 +47,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     [HttpGet("latest/all")]
     public async Task<IActionResult> GetLatestReadingFromAllSensors()
     {
-        var readings = await sensorDataService.GetLatestReadingFromAllSensorsAsync();
+        var readings = await sensorService.GetLatestReadingFromAllSensorsAsync();
         return Ok(readings);
     }
 
@@ -55,7 +55,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     [HttpGet("sensor/readings")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
-        var readings = await sensorDataService.GetReadingsBySensorAsync();
+        var readings = await sensorService.GetReadingsBySensorAsync();
         return Ok(readings);
     }
 
@@ -63,7 +63,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     [HttpGet("sensor/latest")]
     public async Task<IActionResult> GetLatestReadingBySensor()
     {
-        var readings = await sensorDataService.GetLatestReadingBySensorAsync();
+        var readings = await sensorService.GetLatestReadingBySensorAsync();
         return Ok(readings);
     }
 
@@ -71,7 +71,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     [HttpGet("range")]
     public async Task<IActionResult> GetReadingsByTimestampRange([FromQuery] DateTime start, [FromQuery] DateTime end)
     {
-        var readings = await sensorDataService.GetReadingsByTimestampRangeAsync(start, end);
+        var readings = await sensorService.GetReadingsByTimestampRangeAsync(start, end);
         return Ok(readings);
     }
 
@@ -80,7 +80,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     public async Task<IActionResult> GetPaginatedReadings(int sensorId, [FromQuery] int pageNumber,
         [FromQuery] int pageSize)
     {
-        var readings = await sensorDataService.GetReadingsPaginatedAsync(sensorId, pageNumber, pageSize);
+        var readings = await sensorService.GetReadingsPaginatedAsync(sensorId, pageNumber, pageSize);
         return Ok(readings);
     }
 
@@ -89,15 +89,7 @@ public class SensorDataController(ISensorDataService sensorDataService) : Contro
     public async Task<IActionResult> GetAverageReading(int sensorId, [FromQuery] DateTime start,
         [FromQuery] DateTime end)
     {
-        var avg = await sensorDataService.GetAverageReadingForSensorAsync(sensorId, start, end);
+        var avg = await sensorService.GetAverageReadingForSensorAsync(sensorId, start, end);
         return Ok(avg);
-    }
-
-    // Get all alerts from sensor readings
-    [HttpGet("alerts")]
-    public async Task<IActionResult> GetAllSensorReadingAlerts()
-    {
-        var alerts = await sensorDataService.GetAllSensorsReadingAlertsAsync();
-        return Ok(alerts);
     }
 }

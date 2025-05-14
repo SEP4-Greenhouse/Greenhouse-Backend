@@ -18,10 +18,11 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public virtual async Task<IEnumerable<T>> GetAllAsync() => await DbSet.ToListAsync();
 
-    public virtual async Task AddAsync(T entity)
+    public virtual async Task<T> AddAsync(T entity)
     {
         await DbSet.AddAsync(entity);
         await Context.SaveChangesAsync();
+        return entity;
     }
 
     public virtual async Task UpdateAsync(T entity)

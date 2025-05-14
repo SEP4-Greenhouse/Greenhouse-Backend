@@ -4,17 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse.Repositories;
 
-public class ControllerRepository(GreenhouseDbContext context)
-    : BaseRepository<Controller>(context), IControllerRepository
+public class ActuatorRepository(GreenhouseDbContext context)
+    : BaseRepository<Actuator>(context), IActuatorRepository
 {
-    public async Task<IEnumerable<Controller>> GetByGreenhouseIdAsync(int greenhouseId)
+    public async Task<IEnumerable<Actuator>> GetByGreenhouseIdAsync(int greenhouseId)
     {
         return await DbSet
             .Where(c => c.GreenhouseId == greenhouseId)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<ControllerAction>> GetActionsByControllerIdAsync(int controllerId)
+    public async Task<IEnumerable<ActuatorAction>> GetActionsByControllerIdAsync(int controllerId)
     {
         return await Context.ControllerActions
             .Where(a => a.ControllerId == controllerId)

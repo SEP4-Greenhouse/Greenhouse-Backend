@@ -6,7 +6,7 @@ namespace IotClient.IotClientSimulator;
 public class IotClientSimulator : IIoTClient
 {
     private readonly List<SensorReading> _mockReadings;
-    private readonly List<Controller> _mockControllers;
+    private readonly List<Actuator> _mockControllers;
     private readonly Dictionary<int, string> _controllerStatuses;
     private readonly Random _random = new();
 
@@ -70,13 +70,13 @@ public class IotClientSimulator : IIoTClient
             }
         }
 
-        // Initialize mock controller with explicit ID
-        _mockControllers = new List<Controller>
+        // Initialize mock actuator with explicit ID
+        _mockControllers = new List<Actuator>
         {
-            new WaterPumpController(WaterPumpControllerId, "active", greenhouse)
+            new WaterPumpActuator(WaterPumpControllerId, "active", greenhouse)
         };
 
-        // Initialize controller status with explicit ID
+        // Initialize actuator status with explicit ID
         _controllerStatuses = new Dictionary<int, string>
         {
             { WaterPumpControllerId, "active" }
@@ -120,7 +120,7 @@ public class IotClientSimulator : IIoTClient
             .ToList());
     }
 
-    public async Task<bool> SendCommandToControllerAsync(ControllerAction controllerAction)
+    public async Task<bool> SendCommandToControllerAsync(ActuatorAction actuatorAction)
     {
         // Simulate successful command execution
         return await Task.FromResult(true);

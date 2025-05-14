@@ -14,6 +14,22 @@ public class AlertRepository(GreenhouseDbContext context)
             .Where(a => a.Type == Alert.AlertType.Sensor)
             .ToListAsync();
     }
+    
+    public async Task<IEnumerable<Alert>> GetByTypeAsync(Alert.AlertType type)
+    {
+        return await Context.Alerts
+            .AsNoTracking()
+            .Where(a => a.Type == type)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Alert>> GetByDateRangeAsync(DateTime start, DateTime end)
+    {
+        return await Context.Alerts
+            .AsNoTracking()
+            .Where(a => a.Timestamp >= start && a.Timestamp <= end)
+            .ToListAsync();
+    }
 
     public override async Task<Alert?> GetByIdAsync(int id)
     {

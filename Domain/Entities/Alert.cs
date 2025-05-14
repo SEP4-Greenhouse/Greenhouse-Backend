@@ -18,12 +18,14 @@ public class Alert
     [Required] public AlertType Type { get; private set; }
 
     [Required] public string Message { get; private set; }
+    
+    [Required] public DateTime Timestamp { get; private set; }
 
     private readonly List<SensorReading> _triggeringSensorReadings = new();
-    private readonly List<ControllerAction> _triggeringActions = new();
+    private readonly List<ActuatorAction> _triggeringActions = new();
 
     public IReadOnlyCollection<SensorReading> TriggeringSensorReadings => _triggeringSensorReadings.AsReadOnly();
-    public IReadOnlyCollection<ControllerAction> TriggeringActions => _triggeringActions.AsReadOnly();
+    public IReadOnlyCollection<ActuatorAction> TriggeringActions => _triggeringActions.AsReadOnly();
 
     public Alert(AlertType type, string message)
     {
@@ -32,6 +34,7 @@ public class Alert
 
         Type = type;
         Message = message;
+        Timestamp = DateTime.UtcNow;
     }
 
     private Alert()
@@ -53,7 +56,7 @@ public class Alert
         _triggeringSensorReadings.Add(reading);
     }
 
-    public void AddTriggeringAction(ControllerAction action)
+    public void AddTriggeringAction(ActuatorAction action)
     {
         if (action == null)
             throw new ArgumentNullException(nameof(action));

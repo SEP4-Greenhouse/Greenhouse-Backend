@@ -12,9 +12,9 @@ public class GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options) 
     public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
     public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<PredictionLog> PredictionLogs => Set<PredictionLog>();
-    public DbSet<Controller> Controllers => Set<Controller>();
-    public DbSet<WaterPumpController> WaterPumpControllers => Set<WaterPumpController>();
-    public DbSet<ControllerAction> ControllerActions => Set<ControllerAction>();
+    public DbSet<Actuator> Controllers => Set<Actuator>();
+    public DbSet<WaterPumpActuator> WaterPumpControllers => Set<WaterPumpActuator>();
+    public DbSet<ActuatorAction> ControllerActions => Set<ActuatorAction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,10 +52,10 @@ public class GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options) 
             .WithOne(c => c.Greenhouse)
             .HasForeignKey(c => c.GreenhouseId);
 
-        // One-to-Many: Controller -> ControllerActions
-        modelBuilder.Entity<Controller>()
+        // One-to-Many: Actuator -> ControllerActions
+        modelBuilder.Entity<Actuator>()
             .HasMany(c => c.Actions)
-            .WithOne(a => a.Controller)
+            .WithOne(a => a.Actuator)
             .HasForeignKey(a => a.ControllerId);
 
         // One-to-Many: Sensor -> SensorReadings
@@ -65,12 +65,12 @@ public class GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options) 
             .HasForeignKey(r => r.SensorId);
 
         // TPH mapping for controllers
-        modelBuilder.Entity<Controller>()
+        modelBuilder.Entity<Actuator>()
             .HasDiscriminator<string>("ControllerType")
-            .HasValue<WaterPumpController>("WaterPump");
+            .HasValue<WaterPumpActuator>("WaterPump");
 
-        // Controller ID not auto-generated
-        modelBuilder.Entity<Controller>()
+        // Actuator ID not auto-generated
+        modelBuilder.Entity<Actuator>()
             .Property(c => c.Id)
             .ValueGeneratedNever();
 
@@ -88,13 +88,13 @@ public class GreenhouseDbContext(DbContextOptions<GreenhouseDbContext> options) 
                 l => l.HasOne(typeof(SensorReading)).WithMany().HasForeignKey("SensorReadingId"),
                 r => r.HasOne(typeof(Alert)).WithMany().HasForeignKey("AlertId"));
 
-        // Many-to-Many: Alert <-> ControllerAction
+        // Many-to-Many: Alert <-> ActuatorActuatorAction
         modelBuilder.Entity<Alert>()
-            .HasMany(a => (ICollection<ControllerAction>)a.TriggeringActions)
+            .HasMany(a => (ICollection<ActuatorAction>)a.TriggeringActions)
             .WithMany(ca => ca.TriggeredAlerts)
             .UsingEntity(
                 "AlertControllerAction",
-                l => l.HasOne(typeof(ControllerAction)).WithMany().HasForeignKey("ControllerActionId"),
+                l => l.HasOne(typeof(ActuatorAction)).WithMany().HasForeignKey("ControllerActionId"),
                 r => r.HasOne(typeof(Alert)).WithMany().HasForeignKey("AlertId"));
     }
 }

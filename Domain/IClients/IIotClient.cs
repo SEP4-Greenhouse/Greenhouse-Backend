@@ -9,7 +9,7 @@ namespace Domain.IClients
         Task<SensorReading> GetLatestSensorDataBySensorAsync(int sensorId);
         Task<List<SensorReading>> GetAllSensorDataBySensorAsync(int sensorId);
         Task<List<SensorReading>> GetSensorDataBySensorAndDateRangeAsync(int sensorId, DateTime start, DateTime end);
-        Task<bool> SendCommandToControllerAsync(ControllerAction controllerAction);
+        Task<bool> SendCommandToControllerAsync(ActuatorAction actuatorAction);
         Task<string> GetControllerStatusAsync(int controllerId);
         Task<bool> UpdateControllerStatusAsync(int controllerId, string newStatus);
     }

@@ -4,12 +4,35 @@ using Domain.IServices;
 
 namespace GreenhouseService.Services
 {
-    public class SensorDataService(
+    public class SensorService(
         ISensorRepository sensorRepository,
         ISensorReadingRepository sensorReadingRepository,
-        IAlertRepository alertRepository)
-        : ISensorDataService
+        IAlertService alertService)
+        : BaseService<Sensor>(sensorRepository), ISensorService
     {
+        public async Task<SensorReading> GetReadingByIdAsync(int readingId)
+        {
+            return await sensorReadingRepository.GetByIdAsync(readingId);
+        }
+
+        public async Task AddSensorReadingAsync(SensorReading reading)
+        {
+            await sensorReadingRepository.AddAsync(reading);
+
+            await CheckReadingThresholdsAsync(reading);
+        }
+
+        public async Task UpdateSensorReadingAsync(SensorReading reading)
+        {
+            await sensorReadingRepository.UpdateAsync(reading);
+            await CheckReadingThresholdsAsync(reading);
+        }
+
+        public async Task DeleteSensorReadingAsync(int readingId)
+        {
+            await sensorReadingRepository.DeleteAsync(readingId);
+        }
+
         public async Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync()
         {
             return await sensorReadingRepository.GetLatestFromAllSensorsAsync();
@@ -41,54 +64,21 @@ namespace GreenhouseService.Services
             return await sensorReadingRepository.GetLatestBySensorAsync();
         }
 
-        public async Task AddSensorReadingAsync(SensorReading reading)
-        {
-            await sensorReadingRepository.AddAsync(reading);
-            await TriggerAlertIfThresholdExceededAsync(reading);
-        }
-
-        public async Task TriggerAlertIfThresholdExceededAsync(SensorReading reading)
+        private async Task CheckReadingThresholdsAsync(SensorReading reading)
         {
             double tempThreshold = 35.0;
             double humidityThreshold = 20.0;
 
-            Alert? alert = null;
-
             if (reading.Sensor.Type.ToLower().Contains("temperature") && reading.Value > tempThreshold)
             {
-                alert = new Alert(Alert.AlertType.Sensor, $"High temperature detected: {reading.Value} {reading.Unit}");
-                alert.AddTriggeringSensorReading(reading);
+                await alertService.CreateSensorAlertAsync(reading,
+                    $"High temperature detected: {reading.Value} {reading.Unit}");
             }
             else if (reading.Sensor.Type.ToLower().Contains("humidity") && reading.Value < humidityThreshold)
             {
-                alert = new Alert(Alert.AlertType.Sensor, $"Low humidity detected: {reading.Value} {reading.Unit}");
-                alert.AddTriggeringSensorReading(reading);
+                await alertService.CreateSensorAlertAsync(reading,
+                    $"Low humidity detected: {reading.Value} {reading.Unit}");
             }
-
-            if (alert != null)
-            {
-                await alertRepository.AddAsync(alert);
-            }
-        }
-
-        public async Task<IEnumerable<Alert>> GetAllSensorsReadingAlertsAsync()
-        {
-            return await alertRepository.GetBySensorTypeAsync();
-        }
-
-        public async Task AddSensorAsync(Sensor sensor)
-        {
-            if (sensor == null)
-                throw new ArgumentNullException(nameof(sensor));
-            if (await sensorRepository.ExistsByIdAsync(sensor.Id))
-                throw new InvalidOperationException($"A sensor with ID {sensor.Id} already exists.");
-
-            await sensorRepository.AddAsync(sensor);
-        }
-
-        public async Task DeleteSensorAsync(int sensorId)
-        {
-            await sensorRepository.DeleteAsync(sensorId);
         }
     }
 }

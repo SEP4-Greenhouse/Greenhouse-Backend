@@ -16,10 +16,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IMlModelService, MlModelService>();
 builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
-builder.Services.AddScoped<IActionRepository, ActionRepository>();
+builder.Services.AddScoped<IActuatorActionRepository, ActuatorActionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
-builder.Services.AddScoped<ISensorDataService, SensorDataService>();
+builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>

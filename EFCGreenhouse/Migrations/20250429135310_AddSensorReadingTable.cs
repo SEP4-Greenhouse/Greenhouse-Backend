@@ -61,7 +61,7 @@ namespace EFCGreenhouse.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Controller",
+                name: "Actuator",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -141,7 +141,7 @@ namespace EFCGreenhouse.Migrations
                     table.ForeignKey(
                         name: "FK_Action_Controller_ControllerId",
                         column: x => x.ControllerId,
-                        principalTable: "Controller",
+                        principalTable: "Actuator",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -257,7 +257,7 @@ namespace EFCGreenhouse.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Controller_GreenhouseId",
-                table: "Controller",
+                table: "Actuator",
                 column: "GreenhouseId");
 
             migrationBuilder.CreateIndex(
@@ -311,7 +311,7 @@ namespace EFCGreenhouse.Migrations
                 name: "SensorReadings");
 
             migrationBuilder.DropTable(
-                name: "Controller");
+                name: "Actuator");
 
             migrationBuilder.DropTable(
                 name: "Sensor");

@@ -1,29 +1,29 @@
 namespace Domain.Entities;
 
-public class WaterPumpController : Controller
+public class WaterPumpActuator : Actuator
 {
     // Parameterless constructor required by EF Core
-    private WaterPumpController() : base()
+    private WaterPumpActuator() : base()
     {
     }
 
 
-    public WaterPumpController(int id, string status, Greenhouse greenhouse)
+    public WaterPumpActuator(int id, string status, Greenhouse greenhouse)
         : base(id, "WaterPump", status, greenhouse)
     {
     }
 
-    public ControllerAction TurnOn()
+    public ActuatorAction TurnOn()
     {
         return InitiateAction(DateTime.Now, "TurnOn", 1); // Value could represent flow rate or power usage
     }
 
-    public ControllerAction TurnOff()
+    public ActuatorAction TurnOff()
     {
         return InitiateAction(DateTime.Now, "TurnOff", 0); // Value could represent 0 as the pump is off
     }
 
-    public ControllerAction SetFlowRate(double flowRate)
+    public ActuatorAction SetFlowRate(double flowRate)
     {
         if (flowRate <= 0)
         {

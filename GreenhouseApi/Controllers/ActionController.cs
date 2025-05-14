@@ -1,21 +1,20 @@
 using Domain.Entities;
 using Domain.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Controller = Domain.Entities.Controller;
 
 namespace GreenhouseApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class ControllersController(IControllerService controllerService) : ControllerBase
+[Route("api/actuator")]
+public class ActuatorController(IActuatorService actuatorService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateController([FromBody] Controller controller)
+    public async Task<IActionResult> CreateActuator([FromBody] Actuator actuator)
     {
         try
         {
-            var createdController = await controllerService.CreateControllerAsync(controller);
-            return Ok(createdController);
+            var createdActuator = await actuatorService.AddAsync(actuator);
+            return Ok(createdActuator);
         }
         catch (ArgumentException ex)
         {
@@ -24,12 +23,12 @@ public class ControllersController(IControllerService controllerService) : Contr
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetControllerById(int id)
+    public async Task<IActionResult> GetActuatorById(int id)
     {
         try
         {
-            var controller = await controllerService.GetControllerByIdAsync(id);
-            return Ok(controller);
+            var actuator = await actuatorService.GetByIdAsync(id);
+            return Ok(actuator);
         }
         catch (KeyNotFoundException ex)
         {
@@ -38,12 +37,12 @@ public class ControllersController(IControllerService controllerService) : Contr
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteController(int id)
+    public async Task<IActionResult> DeleteActuator(int id)
     {
         try
         {
-            await controllerService.DeleteControllerAsync(id);
-            return Ok("Controller deleted successfully.");
+            await actuatorService.DeleteAsync(id);
+            return Ok("Actuator deleted successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -56,15 +55,15 @@ public class ControllersController(IControllerService controllerService) : Contr
     }
 
     [HttpPut("{id}/status")]
-    public async Task<IActionResult> UpdateControllerStatus(int id, [FromBody] string newStatus)
+    public async Task<IActionResult> UpdateActuatorStatus(int id, [FromBody] string newStatus)
     {
         if (string.IsNullOrWhiteSpace(newStatus))
             return BadRequest("Status cannot be empty.");
 
         try
         {
-            await controllerService.UpdateControllerStatusAsync(id, newStatus);
-            return Ok("Controller status updated successfully.");
+            await actuatorService.UpdateActuatorStatusAsync(id, newStatus);
+            return Ok("Actuator status updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -76,13 +75,13 @@ public class ControllersController(IControllerService controllerService) : Contr
         }
     }
 
-    [HttpPost("{id}/controllerAction")]
-    public async Task<IActionResult> TriggerControllerAction(int id, [FromBody] ControllerAction controllerAction)
+    [HttpPost("{id}/action")]
+    public async Task<IActionResult> TriggerActuatorAction(int id, [FromBody] ActuatorAction actuatorAction)
     {
         try
         {
-            var triggeredAction = await controllerService.TriggerControllerActionAsync(
-                id, controllerAction.Type, controllerAction.Value);
+            var triggeredAction = await actuatorService.TriggerActuatorActionAsync(
+                id, actuatorAction.Type, actuatorAction.Value);
             return Ok(triggeredAction);
         }
         catch (KeyNotFoundException ex)

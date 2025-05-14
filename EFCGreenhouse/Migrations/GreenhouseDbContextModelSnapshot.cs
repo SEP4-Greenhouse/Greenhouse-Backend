@@ -72,7 +72,7 @@ namespace EFCGreenhouse.Migrations
                     b.ToTable("Alerts");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Controller", b =>
+            modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -101,12 +101,12 @@ namespace EFCGreenhouse.Migrations
 
                     b.ToTable("Controllers");
 
-                    b.HasDiscriminator<string>("ControllerType").HasValue("Controller");
+                    b.HasDiscriminator<string>("ControllerType").HasValue("Actuator");
 
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.ControllerAction", b =>
+            modelBuilder.Entity("Domain.Entities.ActuatorActuatorAction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -313,9 +313,9 @@ namespace EFCGreenhouse.Migrations
                     b.ToTable("PredictionLogs");
                 });
 
-            modelBuilder.Entity("Domain.Entities.WaterPumpController", b =>
+            modelBuilder.Entity("Domain.Entities.WaterPumpActuator", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Controller");
+                    b.HasBaseType("Domain.Entities.Actuator");
 
                     b.HasDiscriminator().HasValue("WaterPump");
                 });
@@ -328,7 +328,7 @@ namespace EFCGreenhouse.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ControllerAction", null)
+                    b.HasOne("Domain.Entities.ActuatorActuatorAction", null)
                         .WithMany()
                         .HasForeignKey("ControllerActionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,7 +350,7 @@ namespace EFCGreenhouse.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Controller", b =>
+            modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
                     b.HasOne("Domain.Entities.Greenhouse", "Greenhouse")
                         .WithMany("Controllers")
@@ -361,15 +361,15 @@ namespace EFCGreenhouse.Migrations
                     b.Navigation("Greenhouse");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ControllerAction", b =>
+            modelBuilder.Entity("Domain.Entities.ActuatorActuatorAction", b =>
                 {
-                    b.HasOne("Domain.Entities.Controller", "Controller")
+                    b.HasOne("Domain.Entities.Actuator", "Actuator")
                         .WithMany("Actions")
                         .HasForeignKey("ControllerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Controller");
+                    b.Navigation("Actuator");
                 });
 
             modelBuilder.Entity("Domain.Entities.Greenhouse", b =>
@@ -431,7 +431,7 @@ namespace EFCGreenhouse.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Controller", b =>
+            modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
                     b.Navigation("Actions");
                 });
