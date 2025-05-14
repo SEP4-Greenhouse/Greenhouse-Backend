@@ -8,7 +8,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
 
-namespace MqttClient;
+namespace IotClient;
 
 public class MqttListener : IMqttListener
 {

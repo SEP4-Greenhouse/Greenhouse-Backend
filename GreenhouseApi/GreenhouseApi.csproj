@@ -22,7 +22,7 @@
       <ProjectReference Include="..\EFCGreenhouse\EFCGreenhouse.csproj" />
       <ProjectReference Include="..\GreenhouseService\GreenhouseService.csproj" />
       <ProjectReference Include="..\MLModelClient\MLModelClient.csproj" />
-      <ProjectReference Include="..\MqttClient\MqttClient.csproj" />
+      <ProjectReference Include="..\IotClient\IotClient.csproj" />
     </ItemGroup>
 
 </Project>

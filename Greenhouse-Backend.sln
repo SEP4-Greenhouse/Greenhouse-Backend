@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCGreenhouse", "EFCGreenho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{0AFB37B4-E36F-43A5-897F-0B749F70B5C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MqttClient", "MqttClient\MqttClient.csproj", "{A934ED57-C7FD-42B2-870B-86B7DB7437F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IotClient", "IotClient\IotClient.csproj", "{A934ED57-C7FD-42B2-870B-86B7DB7437F0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenhouseService", "GreenhouseService\GreenhouseService.csproj", "{9DCB0DF5-0022-4D26-8FA9-65202C9C069C}"
 EndProject
