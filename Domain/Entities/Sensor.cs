@@ -6,7 +6,7 @@ namespace Domain.Entities;
 public class Sensor
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)] // Disable auto-generation of IDs
+     // Disable auto-generation of IDs
     public int Id { get; set; } // Made publicly settable to allow custom ID assignment
 
     [Required] [MaxLength(100)] public string Type { get; private set; }
@@ -21,8 +21,8 @@ public class Sensor
 
     public Sensor(int id, string type, string status, Greenhouse greenhouse)
     {
-        if (id <= 0)
-            throw new ArgumentException("ID must be greater than zero.");
+        //if (id <= 0)
+          //  throw new ArgumentException("ID must be greater than zero.");
 
         Id = id;
         Type = type;

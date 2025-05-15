@@ -6,7 +6,6 @@ namespace Domain.Entities
     public abstract class Actuator
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [Required] [MaxLength(100)] public string Type { get; private set; }

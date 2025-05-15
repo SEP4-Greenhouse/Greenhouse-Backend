@@ -78,14 +78,5 @@ public class GreenhouseDbContext : DbContext
         modelBuilder.Entity<Actuator>()
             .HasDiscriminator<string>("ActuatorType")
             .HasValue<WaterPumpActuator>("WaterPump");
-
-        // Disable ID auto-generation for Sensor and Actuator
-        modelBuilder.Entity<Sensor>()
-            .Property(s => s.Id)
-            .ValueGeneratedNever();
-
-        modelBuilder.Entity<Actuator>()
-            .Property(a => a.Id)
-            .ValueGeneratedNever();
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
-
 namespace EFCGreenhouse.Migrations
 {
     [DbContext(typeof(GreenhouseDbContext))]
