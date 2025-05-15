@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCGreenhouse;
 
@@ -87,6 +88,8 @@ public class GreenhouseDbContext : DbContext
         // Configure Actuator ID as identity column
         modelBuilder.Entity<Actuator>()
             .Property(s => s.Id)
-            .UseIdentityAlwaysColumn();
+            .UseIdentityAlwaysColumn()
+            .ValueGeneratedOnAdd()
+            .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
     }
 }

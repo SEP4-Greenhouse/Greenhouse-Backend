@@ -8,19 +8,9 @@ public class WaterPumpActuator : Actuator
     }
 
 
-    public WaterPumpActuator(int id, string status, Greenhouse greenhouse)
-        : base(id, "WaterPump", status, greenhouse)
+    public WaterPumpActuator(string status, Greenhouse greenhouse)
+        : base(status, greenhouse)
     {
-    }
-
-    public ActuatorAction TurnOn()
-    {
-        return InitiateAction(DateTime.Now, "TurnOn", 1); // Value could represent flow rate or power usage
-    }
-
-    public ActuatorAction TurnOff()
-    {
-        return InitiateAction(DateTime.Now, "TurnOff", 0); // Value could represent 0 as the pump is off
     }
 
     public ActuatorAction SetFlowRate(double flowRate)

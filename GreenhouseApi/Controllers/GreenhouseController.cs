@@ -167,10 +167,24 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 
     [HttpPost("{id}/actuators")]
-    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] Actuator actuator)
+    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] CreateActuatorDTO actuatorDto)
     {
         try
         {
+            var greenhouse = await greenhouseService.GetByIdAsync(id);
+        
+            // Create the appropriate actuator type based on the DTO
+            Actuator actuator;
+            if (actuatorDto.Type.ToLower() == "waterpump")
+            {
+                // Don't specify ID - let database generate it
+                actuator = new WaterPumpActuator(actuatorDto.Status, greenhouse);
+            }
+            else
+            {
+                return BadRequest("Unsupported actuator type");
+            }
+        
             await greenhouseService.AddActuatorToGreenhouseAsync(id, actuator);
             return Ok("Actuator added to greenhouse successfully.");
         }
