@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Domain.IServices;
 
-public interface IUserService
+public interface IUserService 
 {
     Task<User?> GetUserByIdAsync(int id);
     Task<IEnumerable<UserDto>> GetAllUsersAsync();

@@ -9,34 +9,6 @@ namespace GreenhouseApi.Controllers;
 [Route("api/greenhouse")]
 public class GreenhouseController(IGreenhouseService greenhouseService, IUserService userService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAllGreenhouses()
-    {
-        try
-        {
-            var greenhouses = await greenhouseService.GetAllAsync();
-            return Ok(greenhouses);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetGreenhouseById(int id)
-    {
-        try
-        {
-            var greenhouse = await greenhouseService.GetByIdAsync(id);
-            return Ok(greenhouse);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-    }
-
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetGreenhousesByUserId(int userId)
     {
@@ -52,7 +24,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateGreenhouse([FromBody] GreenhouseCreateDto dto)
+    public async Task<IActionResult> CreateGreenhouse([FromBody] GreenhouseDto dto)
     {
         try
         {
@@ -69,15 +41,21 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         {
             return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
-    [HttpPut("{id}/plant-type")]
-    public async Task<IActionResult> UpdatePlantType(int id, [FromBody] string newPlantType)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateGreenhouse(int id, [FromBody] GreenhouseDto dto)
     {
         try
         {
-            await greenhouseService.UpdatePlantTypeAsync(id, newPlantType);
-            return Ok("Plant type updated successfully.");
+            var greenhouse = await greenhouseService.GetByIdAsync(id);
+            greenhouse.UpdatePlantType(dto.PlantType);
+            await greenhouseService.UpdateAsync(greenhouse);
+            return Ok("Greenhouse updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -144,15 +122,14 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return NotFound(ex.Message);
         }
     }
-
+// if there will be a need to add a new sensor, we can use this method
     [HttpPost("{id}/sensors")]
-    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] CreateSensorDTO sensorDto)
+    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] SensorDTO sensorDto)
     {
         try
         {
             var greenhouse = await greenhouseService.GetByIdAsync(id);
-            // Don't specify ID - let database generate it
-            var sensor = new Sensor( sensorDto.Type, sensorDto.Status, greenhouse);
+            var sensor = new Sensor(sensorDto.Type, sensorDto.Status, greenhouse);
             await greenhouseService.AddSensorToGreenhouseAsync(id, sensor);
             return Ok("Sensor added to greenhouse successfully.");
         }
@@ -165,27 +142,24 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
-
+    
+// if there will be a need to add a new Actuator, we can use this method
     [HttpPost("{id}/actuators")]
-    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] CreateActuatorDTO actuatorDto)
+    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] ActuatorDTO actuatorDto)
     {
         try
         {
             var greenhouse = await greenhouseService.GetByIdAsync(id);
-        
-            // Create the appropriate actuator type based on the DTO
-            Actuator actuator;
-            if (actuatorDto.Type.ToLower() == "waterpump")
+
+            Actuator actuator = actuatorDto.Type.ToLower() switch
             {
-                // Don't specify ID - let database generate it
-                actuator = new WaterPumpActuator(actuatorDto.Status, greenhouse);
-            }
-            else
-            {
-                return BadRequest("Unsupported actuator type");
-            }
-        
+                "waterpump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
+                "servomotor" => new ServoMotorActuators(actuatorDto.Status, greenhouse),
+                _ => throw new ArgumentException($"Unsupported actuator type: {actuatorDto.Type}")
+            };
+
             await greenhouseService.AddActuatorToGreenhouseAsync(id, actuator);
+
             return Ok("Actuator added to greenhouse successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -196,8 +170,12 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         {
             return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Unexpected error: {ex.Message}");
+        }
     }
-
+//this is for adding a new plant to the greenhouse if there will be a need
     [HttpPost("{id}/plants")]
     public async Task<IActionResult> AddPlantToGreenhouse(int id, [FromBody] Plant plant)
     {
@@ -215,4 +193,132 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
+    [HttpPut("{greenhouseId}/plants/{plantId}")]
+    public async Task<IActionResult> UpdatePlantInGreenhouse(int greenhouseId, int plantId, [FromBody] Plant updatedPlant)
+    {
+        try
+        {
+            await greenhouseService.UpdatePlantInGreenhouseAsync(greenhouseId, plantId, updatedPlant);
+            return Ok("Plant updated successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpDelete("{greenhouseId}/plants/{plantId}")]
+    public async Task<IActionResult> DeletePlantFromGreenhouse(int greenhouseId, int plantId)
+    {
+        try
+        {
+            await greenhouseService.DeletePlantFromGreenhouseAsync(greenhouseId, plantId);
+            return Ok("Plant deleted from greenhouse successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    [HttpPut("{greenhouseId}/sensors/{sensorId}")]
+    public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] Sensor updatedSensor)
+    {
+        try
+        {
+            await greenhouseService.UpdateSensorInGreenhouseAsync(greenhouseId, sensorId, updatedSensor);
+            return Ok("Sensor updated successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Unexpected error: {ex.Message}");
+        }
+    }
+    [HttpDelete("{greenhouseId}/sensors/{sensorId}")]
+    public async Task<IActionResult> DeleteSensorFromGreenhouse(int greenhouseId, int sensorId)
+    {
+        try
+        {
+            await greenhouseService.DeleteSensorFromGreenhouseAsync(greenhouseId, sensorId);
+            return Ok("Sensor deleted from greenhouse successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Unexpected error: {ex.Message}");
+        }
+    }   
+    [HttpPut("{greenhouseId}/actuators/{actuatorId}")]
+    public async Task<IActionResult> UpdateActuatorInGreenhouse(int greenhouseId, int actuatorId, [FromBody] ActuatorDTO updatedActuator)
+    {
+        try
+        {
+            // Get the existing actuator first
+            var existingActuator = await greenhouseService.GetActuatorsByGreenhouseIdAsync(greenhouseId)
+                .ContinueWith(t => t.Result.FirstOrDefault(a => a.Id == actuatorId));
+            
+            if (existingActuator == null)
+                return NotFound($"Actuator with ID {actuatorId} not found in greenhouse {greenhouseId}");
+        
+            // Update only the status from the DTO
+            existingActuator.UpdateStatus(updatedActuator.Status);
+        
+            // Now pass the entity to the service method
+            await greenhouseService.UpdateActuatorInGreenhouseAsync(greenhouseId, actuatorId, existingActuator);
+            return Ok("Actuator updated successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Unexpected error: {ex.Message}");
+        }
+    }
+    
+    [HttpDelete("{greenhouseId}/actuators/{actuatorId}")]
+    public async Task<IActionResult> DeleteActuatorFromGreenhouse(int greenhouseId, int actuatorId)
+    {
+        try
+        {
+            await greenhouseService.DeleteActuatorFromGreenhouseAsync(greenhouseId, actuatorId);
+            return Ok("Actuator deleted from greenhouse successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
 }

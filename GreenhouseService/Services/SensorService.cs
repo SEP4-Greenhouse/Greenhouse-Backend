@@ -10,29 +10,14 @@ namespace GreenhouseService.Services
         IAlertService alertService)
         : BaseService<Sensor>(sensorRepository), ISensorService
     {
-        public async Task<SensorReading> GetReadingByIdAsync(int readingId)
-        {
-            return await sensorReadingRepository.GetByIdAsync(readingId);
-        }
-
+      
         public async Task AddSensorReadingAsync(SensorReading reading)
         {
             await sensorReadingRepository.AddAsync(reading);
 
             await CheckReadingThresholdsAsync(reading);
         }
-
-        public async Task UpdateSensorReadingAsync(SensorReading reading)
-        {
-            await sensorReadingRepository.UpdateAsync(reading);
-            await CheckReadingThresholdsAsync(reading);
-        }
-
-        public async Task DeleteSensorReadingAsync(int readingId)
-        {
-            await sensorReadingRepository.DeleteAsync(readingId);
-        }
-
+     
         public async Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync()
         {
             return await sensorReadingRepository.GetLatestFromAllSensorsAsync();
@@ -66,6 +51,7 @@ namespace GreenhouseService.Services
 
         private async Task CheckReadingThresholdsAsync(SensorReading reading)
         {
+            //TODO: Define thresholds based on sensor type and greenhouse conditions
             double tempThreshold = 35.0;
             double humidityThreshold = 20.0;
 
