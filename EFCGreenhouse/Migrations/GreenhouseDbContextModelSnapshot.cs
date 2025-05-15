@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
+
 namespace EFCGreenhouse.Migrations
 {
     [DbContext(typeof(GreenhouseDbContext))]
@@ -54,7 +55,10 @@ namespace EFCGreenhouse.Migrations
             modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ActuatorType")
                         .IsRequired()
@@ -140,7 +144,10 @@ namespace EFCGreenhouse.Migrations
             modelBuilder.Entity("Domain.Entities.Sensor", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GreenhouseId")
                         .HasColumnType("integer");

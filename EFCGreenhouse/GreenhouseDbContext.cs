@@ -78,5 +78,15 @@ public class GreenhouseDbContext : DbContext
         modelBuilder.Entity<Actuator>()
             .HasDiscriminator<string>("ActuatorType")
             .HasValue<WaterPumpActuator>("WaterPump");
+        
+        // Configure Sensor ID as identity column (will always generate values)
+        modelBuilder.Entity<Sensor>()
+            .Property(s => s.Id)
+            .UseIdentityAlwaysColumn();
+        
+        // Configure Actuator ID as identity column
+        modelBuilder.Entity<Actuator>()
+            .Property(s => s.Id)
+            .UseIdentityAlwaysColumn();
     }
 }

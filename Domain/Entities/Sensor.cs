@@ -19,12 +19,12 @@ public class Sensor
 
     public ICollection<SensorReading> Readings { get; private set; } = new List<SensorReading>();
 
-    public Sensor(int id, string type, string status, Greenhouse greenhouse)
+    public Sensor(string type, string status, Greenhouse greenhouse)
     {
         //if (id <= 0)
           //  throw new ArgumentException("ID must be greater than zero.");
 
-        Id = id;
+        //Id = id;
         Type = type;
         Status = status;
         Greenhouse = greenhouse ?? throw new ArgumentNullException(nameof(greenhouse));

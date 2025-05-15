@@ -62,7 +62,7 @@ namespace GreenhouseService.Services
                 throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             greenhouse.AddSensor(sensor);
-            await UpdateAsync(greenhouse);
+            //await UpdateAsync(greenhouse);
             await sensorRepository.AddAsync(sensor);
         }
 

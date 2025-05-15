@@ -146,10 +146,13 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 
     [HttpPost("{id}/sensors")]
-    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] Sensor sensor)
+    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] CreateSensorDTO sensorDto)
     {
         try
         {
+            var greenhouse = await greenhouseService.GetByIdAsync(id);
+            // Don't specify ID - let database generate it
+            var sensor = new Sensor( sensorDto.Type, sensorDto.Status, greenhouse);
             await greenhouseService.AddSensorToGreenhouseAsync(id, sensor);
             return Ok("Sensor added to greenhouse successfully.");
         }
