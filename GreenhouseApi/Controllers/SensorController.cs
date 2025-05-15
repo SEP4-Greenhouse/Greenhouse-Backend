@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace GreenhouseApi.Controllers;
 
 [ApiController]
-[Route("api/[actuator]")]
-public class SensorDataController(ISensorService sensorService) : ControllerBase
+[Route("api/sensor")]
+public class SensorController(ISensorService sensorService) : ControllerBase
 {
     // Add a new sensor
     [HttpPost("sensor")]

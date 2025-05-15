@@ -21,6 +21,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGreenhouseService, GreenhouseService.Services.GreenhouseService>();
+builder.Services.AddScoped<IGreenhouseRepository, GreenhouseRepository>();
+builder.Services.AddScoped<IActuatorRepository, ActuatorRepository>();
+builder.Services.AddScoped<IAlertService, AlertService.Services.AlertService>();
+builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {
@@ -32,6 +38,11 @@ builder.Services.AddDbContext<GreenhouseDbContext>(options =>
     var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
     options.UseNpgsql(connectionString);
 });
+builder.Services.AddControllers()
+    .AddJsonOptions(options => 
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
 
 builder.Services.AddCors(options =>
 {

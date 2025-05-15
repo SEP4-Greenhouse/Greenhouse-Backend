@@ -14,10 +14,10 @@ public class ActuatorRepository(GreenhouseDbContext context)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<ActuatorAction>> GetActionsByControllerIdAsync(int controllerId)
+    public async Task<IEnumerable<ActuatorAction>> GetActionsByActuatorIdAsync(int ActuatorId)
     {
-        return await Context.ControllerActions
-            .Where(a => a.ControllerId == controllerId)
+        return await Context.ActuatorActions
+            .Where(a => a.ActuatorId == ActuatorId)
             .ToListAsync();
     }
 }

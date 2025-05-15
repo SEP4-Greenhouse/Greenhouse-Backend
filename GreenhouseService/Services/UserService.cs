@@ -9,13 +9,13 @@ namespace GreenhouseService.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<UserDto?> GetUserByIdAsync(int id)
+    public async Task<User?> GetUserByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("User ID must be greater than zero.");
 
         var user = await userRepository.GetByIdAsync(id);
-        return user == null ? null : new UserDto(user.Id, user.Name, user.Email);
+        return user == null ? null : new User(user.Name, user.Email, user.HashedPassword);
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()

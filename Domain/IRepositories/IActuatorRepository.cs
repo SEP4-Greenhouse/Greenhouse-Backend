@@ -5,5 +5,5 @@ namespace Domain.IRepositories;
 public interface IActuatorRepository : IBaseRepository<Actuator>
 {
     Task<IEnumerable<Actuator>> GetByGreenhouseIdAsync(int greenhouseId);
-    Task<IEnumerable<ActuatorAction>> GetActionsByControllerIdAsync(int controllerId);
+    Task<IEnumerable<ActuatorAction>> GetActionsByActuatorIdAsync(int ActuatorId);
 }

@@ -12,107 +12,58 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EFCGreenhouse.Migrations
 {
     [DbContext(typeof(GreenhouseDbContext))]
-    [Migration("20250508112556_CloudDatabse")]
-    partial class CloudDatabse
+    [Migration("20250514182124_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ActionAlert", b =>
+            modelBuilder.Entity("AlertActuatorAction", b =>
                 {
-                    b.Property<int>("TriggeredAlertsId")
+                    b.Property<int>("ActuatorActionId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TriggeringActionsId")
+                    b.Property<int>("AlertId")
                         .HasColumnType("integer");
 
-                    b.HasKey("TriggeredAlertsId", "TriggeringActionsId");
+                    b.HasKey("ActuatorActionId", "AlertId");
 
-                    b.HasIndex("TriggeringActionsId");
+                    b.HasIndex("AlertId");
 
-                    b.ToTable("ActionAlert");
+                    b.ToTable("AlertActuatorAction");
                 });
 
             modelBuilder.Entity("AlertSensorReading", b =>
                 {
-                    b.Property<int>("TriggeredAlertsId")
+                    b.Property<int>("AlertId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TriggeringSensorReadingsId")
+                    b.Property<int>("SensorReadingId")
                         .HasColumnType("integer");
 
-                    b.HasKey("TriggeredAlertsId", "TriggeringSensorReadingsId");
+                    b.HasKey("AlertId", "SensorReadingId");
 
-                    b.HasIndex("TriggeringSensorReadingsId");
+                    b.HasIndex("SensorReadingId");
 
                     b.ToTable("AlertSensorReading");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Action", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ControllerId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ControllerId");
-
-                    b.ToTable("Actions");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Alert", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Alerts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("ActuatorType")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)");
 
                     b.Property<int>("GreenhouseId")
                         .HasColumnType("integer");
@@ -131,10 +82,14 @@ namespace EFCGreenhouse.Migrations
 
                     b.HasIndex("GreenhouseId");
 
-                    b.ToTable("Controllers");
+                    b.ToTable("Actuators");
+
+                    b.HasDiscriminator<string>("ActuatorType").HasValue("Actuator");
+
+                    b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Greenhouse", b =>
+            modelBuilder.Entity("Domain.Entities.ActuatorAction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,59 +97,54 @@ namespace EFCGreenhouse.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("PlantType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("UserId")
+                    b.Property<int>("ActuatorId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Greenhouses");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Plant", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GreenhouseId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("GrowthStage")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("PlantingDate")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Species")
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<double>("Value")
+                        .HasColumnType("double precision");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("GreenhouseId");
+                    b.HasIndex("ActuatorId");
 
-                    b.ToTable("Plants");
+                    b.ToTable("ActuatorActions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Alert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Alerts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Sensor", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GreenhouseId")
                         .HasColumnType("integer");
@@ -271,6 +221,60 @@ namespace EFCGreenhouse.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Greenhouse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PlantType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Greenhouses");
+                });
+
+            modelBuilder.Entity("Plant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GreenhouseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GrowthStage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("PlantingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Species")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GreenhouseId");
+
+                    b.ToTable("Plants");
+                });
+
             modelBuilder.Entity("PlantSensorReading", b =>
                 {
                     b.Property<int>("AffectedPlantsId")
@@ -286,46 +290,24 @@ namespace EFCGreenhouse.Migrations
                     b.ToTable("PlantSensorReading");
                 });
 
-            modelBuilder.Entity("PredictionLog", b =>
+            modelBuilder.Entity("Domain.Entities.WaterPumpActuator", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                    b.HasBaseType("Domain.Entities.Actuator");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Suggestion")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TrendAnalysis")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PredictionLogs");
+                    b.HasDiscriminator().HasValue("WaterPump");
                 });
 
-            modelBuilder.Entity("ActionAlert", b =>
+            modelBuilder.Entity("AlertActuatorAction", b =>
                 {
-                    b.HasOne("Domain.Entities.Alert", null)
+                    b.HasOne("Domain.Entities.ActuatorAction", null)
                         .WithMany()
-                        .HasForeignKey("TriggeredAlertsId")
+                        .HasForeignKey("ActuatorActionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Action", null)
+                    b.HasOne("Domain.Entities.Alert", null)
                         .WithMany()
-                        .HasForeignKey("TriggeringActionsId")
+                        .HasForeignKey("AlertId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -334,31 +316,20 @@ namespace EFCGreenhouse.Migrations
                 {
                     b.HasOne("Domain.Entities.Alert", null)
                         .WithMany()
-                        .HasForeignKey("TriggeredAlertsId")
+                        .HasForeignKey("AlertId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.SensorReading", null)
                         .WithMany()
-                        .HasForeignKey("TriggeringSensorReadingsId")
+                        .HasForeignKey("SensorReadingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Action", b =>
-                {
-                    b.HasOne("Domain.Entities.Actuator", "Actuator")
-                        .WithMany("Actions")
-                        .HasForeignKey("ControllerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Actuator");
                 });
 
             modelBuilder.Entity("Domain.Entities.Actuator", b =>
                 {
-                    b.HasOne("Domain.Entities.Greenhouse", "Greenhouse")
+                    b.HasOne("Greenhouse", "Greenhouse")
                         .WithMany("Controllers")
                         .HasForeignKey("GreenhouseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -367,31 +338,20 @@ namespace EFCGreenhouse.Migrations
                     b.Navigation("Greenhouse");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Greenhouse", b =>
+            modelBuilder.Entity("Domain.Entities.ActuatorAction", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("Greenhouses")
-                        .HasForeignKey("UserId")
+                    b.HasOne("Domain.Entities.Actuator", "Actuator")
+                        .WithMany("Actions")
+                        .HasForeignKey("ActuatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Plant", b =>
-                {
-                    b.HasOne("Domain.Entities.Greenhouse", "Greenhouse")
-                        .WithMany("Plants")
-                        .HasForeignKey("GreenhouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Greenhouse");
+                    b.Navigation("Actuator");
                 });
 
             modelBuilder.Entity("Domain.Entities.Sensor", b =>
                 {
-                    b.HasOne("Domain.Entities.Greenhouse", "Greenhouse")
+                    b.HasOne("Greenhouse", "Greenhouse")
                         .WithMany("Sensors")
                         .HasForeignKey("GreenhouseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -411,9 +371,31 @@ namespace EFCGreenhouse.Migrations
                     b.Navigation("Sensor");
                 });
 
+            modelBuilder.Entity("Greenhouse", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("Greenhouses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Plant", b =>
+                {
+                    b.HasOne("Greenhouse", "Greenhouse")
+                        .WithMany("Plants")
+                        .HasForeignKey("GreenhouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Greenhouse");
+                });
+
             modelBuilder.Entity("PlantSensorReading", b =>
                 {
-                    b.HasOne("Domain.Entities.Plant", null)
+                    b.HasOne("Plant", null)
                         .WithMany()
                         .HasForeignKey("AffectedPlantsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -431,15 +413,6 @@ namespace EFCGreenhouse.Migrations
                     b.Navigation("Actions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Greenhouse", b =>
-                {
-                    b.Navigation("Controllers");
-
-                    b.Navigation("Plants");
-
-                    b.Navigation("Sensors");
-                });
-
             modelBuilder.Entity("Domain.Entities.Sensor", b =>
                 {
                     b.Navigation("Readings");
@@ -448,6 +421,15 @@ namespace EFCGreenhouse.Migrations
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Navigation("Greenhouses");
+                });
+
+            modelBuilder.Entity("Greenhouse", b =>
+                {
+                    b.Navigation("Controllers");
+
+                    b.Navigation("Plants");
+
+                    b.Navigation("Sensors");
                 });
 #pragma warning restore 612, 618
         }

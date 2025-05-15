@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GreenhouseApi.Controllers;
 
 [ApiController]
-[Route("api/[actuator]")]
+[Route("api/user")]
 public class UserController(IUserService userService) : ControllerBase
 {
     [HttpGet("{id}")]

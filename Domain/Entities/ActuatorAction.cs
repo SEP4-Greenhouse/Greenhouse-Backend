@@ -13,7 +13,7 @@ namespace Domain.Entities
 
         [Required] public double Value { get; private set; }
 
-        [ForeignKey("Actuator")] public int ControllerId { get; private set; }
+        [ForeignKey("Actuator")] public int ActuatorId { get; private set; }
         public Actuator Actuator { get; private set; }
 
         public List<Alert> TriggeredAlerts { get; private set; }
@@ -27,7 +27,7 @@ namespace Domain.Entities
             Type = type;
             Value = value;
             Actuator = actuator ?? throw new ArgumentNullException(nameof(actuator));
-            ControllerId = actuator.Id;
+            ActuatorId = actuator.Id;
             TriggeredAlerts = new List<Alert>();
         }
 

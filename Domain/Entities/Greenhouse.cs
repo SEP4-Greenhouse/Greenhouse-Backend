@@ -1,29 +1,34 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Domain.Entities;
+using Domain.Entities;
 
 public class Greenhouse
 {
-    [Key] public int Id { get; private set; }
-    [Required] [MaxLength(100)] public string PlantType { get; private set; }
-    [ForeignKey("User")] public int UserId { get; private set; }
+    [Key]
+    public int Id { get; private set; }
+
+    [Required]
+    [MaxLength(100)]
+    public string PlantType { get; private set; }
+
+    [Required]
+    public int UserId { get; private set; }
+
+    [ForeignKey(nameof(UserId))]
     public User User { get; private set; }
 
     public ICollection<Plant> Plants { get; private set; } = new List<Plant>();
     public ICollection<Sensor> Sensors { get; private set; } = new List<Sensor>();
-    public ICollection<Controller> Controllers { get; private set; } = new List<Controller>();
+    public ICollection<Actuator> Controllers { get; private set; } = new List<Actuator>();
 
     public Greenhouse(string plantType, User user)
     {
-        PlantType = plantType;
-        User = user;
-        UserId = user.Id;
+        if (string.IsNullOrWhiteSpace(plantType)) throw new ArgumentException("Plant type cannot be empty.");
+        PlantType = plantType ?? throw new ArgumentNullException(nameof(plantType));
+        User = user ?? throw new ArgumentNullException(nameof(user));
     }
 
-    private Greenhouse()
-    {
-    } // Required by EF Core
+    private Greenhouse() { }
 
     public void UpdatePlantType(string newPlantType)
     {
@@ -32,18 +37,7 @@ public class Greenhouse
         PlantType = newPlantType;
     }
 
-    public void AddPlant(Plant plant)
-    {
-        Plants.Add(plant);
-    }
-
-    public void AddSensor(Sensor sensor)
-    {
-        Sensors.Add(sensor);
-    }
-
-    public void AddController(Controller controller)
-    {
-        Controllers.Add(controller);
-    }
+    public void AddPlant(Plant plant) => Plants.Add(plant);
+    public void AddSensor(Sensor sensor) => Sensors.Add(sensor);
+    public void AddController(Actuator actuator) => Controllers.Add(actuator);
 }

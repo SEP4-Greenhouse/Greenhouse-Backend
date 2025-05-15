@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EFCGreenhouse.Migrations
 {
     /// <inheritdoc />
-    public partial class CloudDatabse : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,28 +18,13 @@ namespace EFCGreenhouse.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Message = table.Column<string>(type: "text", nullable: false)
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Alerts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PredictionLogs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Suggestion = table.Column<string>(type: "text", nullable: false),
-                    TrendAnalysis = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PredictionLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -78,20 +63,20 @@ namespace EFCGreenhouse.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Controllers",
+                name: "Actuators",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<int>(type: "integer", nullable: false),
                     Type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Status = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    GreenhouseId = table.Column<int>(type: "integer", nullable: false)
+                    GreenhouseId = table.Column<int>(type: "integer", nullable: false),
+                    ActuatorType = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Controllers", x => x.Id);
+                    table.PrimaryKey("PK_Actuators", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Controllers_Greenhouses_GreenhouseId",
+                        name: "FK_Actuators_Greenhouses_GreenhouseId",
                         column: x => x.GreenhouseId,
                         principalTable: "Greenhouses",
                         principalColumn: "Id",
@@ -124,8 +109,7 @@ namespace EFCGreenhouse.Migrations
                 name: "Sensors",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<int>(type: "integer", nullable: false),
                     Type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Status = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     GreenhouseId = table.Column<int>(type: "integer", nullable: false)
@@ -142,7 +126,7 @@ namespace EFCGreenhouse.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Actions",
+                name: "ActuatorActions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -150,15 +134,15 @@ namespace EFCGreenhouse.Migrations
                     Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Value = table.Column<double>(type: "double precision", nullable: false),
-                    ControllerId = table.Column<int>(type: "integer", nullable: false)
+                    ActuatorId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Actions", x => x.Id);
+                    table.PrimaryKey("PK_ActuatorActions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Actions_Controllers_ControllerId",
-                        column: x => x.ControllerId,
-                        principalTable: "Controllers",
+                        name: "FK_ActuatorActions_Actuators_ActuatorId",
+                        column: x => x.ActuatorId,
+                        principalTable: "Actuators",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -186,24 +170,24 @@ namespace EFCGreenhouse.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ActionAlert",
+                name: "AlertActuatorAction",
                 columns: table => new
                 {
-                    TriggeredAlertsId = table.Column<int>(type: "integer", nullable: false),
-                    TriggeringActionsId = table.Column<int>(type: "integer", nullable: false)
+                    ActuatorActionId = table.Column<int>(type: "integer", nullable: false),
+                    AlertId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ActionAlert", x => new { x.TriggeredAlertsId, x.TriggeringActionsId });
+                    table.PrimaryKey("PK_AlertActuatorAction", x => new { x.ActuatorActionId, x.AlertId });
                     table.ForeignKey(
-                        name: "FK_ActionAlert_Actions_TriggeringActionsId",
-                        column: x => x.TriggeringActionsId,
-                        principalTable: "Actions",
+                        name: "FK_AlertActuatorAction_ActuatorActions_ActuatorActionId",
+                        column: x => x.ActuatorActionId,
+                        principalTable: "ActuatorActions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ActionAlert_Alerts_TriggeredAlertsId",
-                        column: x => x.TriggeredAlertsId,
+                        name: "FK_AlertActuatorAction_Alerts_AlertId",
+                        column: x => x.AlertId,
                         principalTable: "Alerts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -213,21 +197,21 @@ namespace EFCGreenhouse.Migrations
                 name: "AlertSensorReading",
                 columns: table => new
                 {
-                    TriggeredAlertsId = table.Column<int>(type: "integer", nullable: false),
-                    TriggeringSensorReadingsId = table.Column<int>(type: "integer", nullable: false)
+                    AlertId = table.Column<int>(type: "integer", nullable: false),
+                    SensorReadingId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AlertSensorReading", x => new { x.TriggeredAlertsId, x.TriggeringSensorReadingsId });
+                    table.PrimaryKey("PK_AlertSensorReading", x => new { x.AlertId, x.SensorReadingId });
                     table.ForeignKey(
-                        name: "FK_AlertSensorReading_Alerts_TriggeredAlertsId",
-                        column: x => x.TriggeredAlertsId,
+                        name: "FK_AlertSensorReading_Alerts_AlertId",
+                        column: x => x.AlertId,
                         principalTable: "Alerts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AlertSensorReading_SensorReadings_TriggeringSensorReadingsId",
-                        column: x => x.TriggeringSensorReadingsId,
+                        name: "FK_AlertSensorReading_SensorReadings_SensorReadingId",
+                        column: x => x.SensorReadingId,
                         principalTable: "SensorReadings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -258,24 +242,24 @@ namespace EFCGreenhouse.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ActionAlert_TriggeringActionsId",
-                table: "ActionAlert",
-                column: "TriggeringActionsId");
+                name: "IX_ActuatorActions_ActuatorId",
+                table: "ActuatorActions",
+                column: "ActuatorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Actions_ControllerId",
-                table: "Actions",
-                column: "ControllerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AlertSensorReading_TriggeringSensorReadingsId",
-                table: "AlertSensorReading",
-                column: "TriggeringSensorReadingsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Controllers_GreenhouseId",
-                table: "Controllers",
+                name: "IX_Actuators_GreenhouseId",
+                table: "Actuators",
                 column: "GreenhouseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AlertActuatorAction_AlertId",
+                table: "AlertActuatorAction",
+                column: "AlertId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AlertSensorReading_SensorReadingId",
+                table: "AlertSensorReading",
+                column: "SensorReadingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Greenhouses_UserId",
@@ -307,7 +291,7 @@ namespace EFCGreenhouse.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ActionAlert");
+                name: "AlertActuatorAction");
 
             migrationBuilder.DropTable(
                 name: "AlertSensorReading");
@@ -316,10 +300,7 @@ namespace EFCGreenhouse.Migrations
                 name: "PlantSensorReading");
 
             migrationBuilder.DropTable(
-                name: "PredictionLogs");
-
-            migrationBuilder.DropTable(
-                name: "Actions");
+                name: "ActuatorActions");
 
             migrationBuilder.DropTable(
                 name: "Alerts");
@@ -331,7 +312,7 @@ namespace EFCGreenhouse.Migrations
                 name: "SensorReadings");
 
             migrationBuilder.DropTable(
-                name: "Controllers");
+                name: "Actuators");
 
             migrationBuilder.DropTable(
                 name: "Sensors");

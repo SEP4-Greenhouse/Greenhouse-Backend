@@ -31,7 +31,7 @@ public class ActuatorService(
 
     public async Task<IEnumerable<ActuatorAction>> GetActuatorActionsAsync(int actuatorId)
     {
-        return await actuatorRepository.GetActionsByControllerIdAsync(actuatorId);
+        return await actuatorRepository.GetActionsByActuatorIdAsync(actuatorId);
     }
 
     public async Task<ActuatorAction> GetActionByIdAsync(int actionId)
