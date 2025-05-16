@@ -229,11 +229,20 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         }
     }
     [HttpPut("{greenhouseId}/sensors/{sensorId}")]
-    public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] Sensor updatedSensor)
+    [HttpPut("{greenhouseId}/sensors/{sensorId}")]
+    public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] SensorDTO updatedSensor)
     {
         try
         {
-            await greenhouseService.UpdateSensorInGreenhouseAsync(greenhouseId, sensorId, updatedSensor);
+            var existingSensor = await greenhouseService.GetSensorsByGreenhouseIdAsync(greenhouseId)
+                .ContinueWith(t => t.Result.FirstOrDefault(s => s.Id == sensorId));
+        
+            if (existingSensor == null)
+                return NotFound($"Sensor with ID {sensorId} not found in greenhouse {greenhouseId}");
+        
+            existingSensor.UpdateStatus(updatedSensor.Status);
+        
+            await greenhouseService.UpdateSensorInGreenhouseAsync(greenhouseId, sensorId, existingSensor);
             return Ok("Sensor updated successfully.");
         }
         catch (KeyNotFoundException ex)
@@ -275,17 +284,14 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     {
         try
         {
-            // Get the existing actuator first
             var existingActuator = await greenhouseService.GetActuatorsByGreenhouseIdAsync(greenhouseId)
                 .ContinueWith(t => t.Result.FirstOrDefault(a => a.Id == actuatorId));
             
             if (existingActuator == null)
                 return NotFound($"Actuator with ID {actuatorId} not found in greenhouse {greenhouseId}");
         
-            // Update only the status from the DTO
             existingActuator.UpdateStatus(updatedActuator.Status);
         
-            // Now pass the entity to the service method
             await greenhouseService.UpdateActuatorInGreenhouseAsync(greenhouseId, actuatorId, existingActuator);
             return Ok("Actuator updated successfully.");
         }
