@@ -1,5 +1,6 @@
 using Domain.DTOs;
 using Domain.Entities;
+using Domain.Entities.Actuators;
 using Domain.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -154,7 +155,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             Actuator actuator = actuatorDto.Type.ToLower() switch
             {
                 "waterpump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
-                "servomotor" => new ServoMotorActuators(actuatorDto.Status, greenhouse),
+                "servomotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
                 _ => throw new ArgumentException($"Unsupported actuator type: {actuatorDto.Type}")
             };
 
@@ -177,10 +178,21 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 //this is for adding a new plant to the greenhouse if there will be a need
     [HttpPost("{id}/plants")]
-    public async Task<IActionResult> AddPlantToGreenhouse(int id, [FromBody] Plant plant)
+    public async Task<IActionResult> AddPlantToGreenhouse(int id, [FromBody] PlantDto plantDto)
     {
         try
         {
+            // First get the greenhouse by id
+            var greenhouse = await greenhouseService.GetByIdAsync(id);
+
+            // Create a new Plant object from the DTO data
+            var plant = new Plant(
+                plantDto.Species,
+                plantDto.PlantingDate,
+                plantDto.GrowthStage,
+                greenhouse
+            );
+
             await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
             return Ok("Plant added to greenhouse successfully.");
         }
@@ -193,6 +205,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
+
     [HttpPut("{greenhouseId}/plants/{plantId}")]
     public async Task<IActionResult> UpdatePlantInGreenhouse(int greenhouseId, int plantId, [FromBody] Plant updatedPlant)
     {
@@ -228,7 +241,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
-    [HttpPut("{greenhouseId}/sensors/{sensorId}")]
+    
     [HttpPut("{greenhouseId}/sensors/{sensorId}")]
     public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] SensorDTO updatedSensor)
     {

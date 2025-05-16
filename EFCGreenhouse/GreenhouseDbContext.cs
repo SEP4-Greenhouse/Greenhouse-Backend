@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Actuators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -41,7 +42,7 @@ public class GreenhouseDbContext : DbContext
 
         // Greenhouse has Actuators
         modelBuilder.Entity<Greenhouse>()
-            .HasMany(g => g.Controllers)
+            .HasMany(g => g.Actuators)
             .WithOne(a => a.Greenhouse)
             .HasForeignKey(a => a.GreenhouseId);
 
@@ -78,7 +79,8 @@ public class GreenhouseDbContext : DbContext
         // TPH inheritance for Actuator types
         modelBuilder.Entity<Actuator>()
             .HasDiscriminator<string>("ActuatorType")
-            .HasValue<WaterPumpActuator>("WaterPump");
+            .HasValue<WaterPumpActuator>("WaterPump")
+            .HasValue<ServoMotorActuator>("servomotor");
         
         // Configure Sensor ID as identity column (will always generate values)
         modelBuilder.Entity<Sensor>()

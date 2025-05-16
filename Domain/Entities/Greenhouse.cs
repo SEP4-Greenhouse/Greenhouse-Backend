@@ -19,7 +19,7 @@ public class Greenhouse
 
     public ICollection<Plant> Plants { get; private set; } = new List<Plant>();
     public ICollection<Sensor> Sensors { get; private set; } = new List<Sensor>();
-    public ICollection<Actuator> Controllers { get; private set; } = new List<Actuator>();
+    public ICollection<Actuator> Actuators { get; private set; } = new List<Actuator>();
 
     public Greenhouse(string plantType, User user)
     {
@@ -39,5 +39,5 @@ public class Greenhouse
 
     public void AddPlant(Plant plant) => Plants.Add(plant);
     public void AddSensor(Sensor sensor) => Sensors.Add(sensor);
-    public void AddController(Actuator actuator) => Controllers.Add(actuator);
+    public void AddActuator(Actuator actuator) => Actuators.Add(actuator);
 }

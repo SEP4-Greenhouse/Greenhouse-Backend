@@ -37,7 +37,6 @@ namespace GreenhouseService.Services
                              ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             greenhouse.AddPlant(plant);
-            await UpdateAsync(greenhouse);
             return await plantRepository.AddAsync(plant);
         }
 
@@ -79,8 +78,8 @@ namespace GreenhouseService.Services
             var greenhouse = await GetByIdAsync(greenhouseId)
                              ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
-            greenhouse.AddController(actuator);
-            await UpdateAsync(greenhouse);
+            greenhouse.AddActuator(actuator);
+            //await UpdateAsync(greenhouse);
             await actuatorRepository.AddAsync(actuator);
         }
 
