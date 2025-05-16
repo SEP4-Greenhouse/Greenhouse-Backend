@@ -5,5 +5,5 @@ namespace Domain.IServices;
 
 public interface IMlModelService
 {
-    Task<PredictionLog?> PredictAsync(SensorDataDto data);
+    Task<PredictionLog?> PredictAsync(SensorReadingDto reading);
 }

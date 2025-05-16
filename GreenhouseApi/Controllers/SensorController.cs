@@ -1,3 +1,4 @@
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IServices;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,31 @@ public class SensorController(ISensorService sensorService) : ControllerBase
     
     // This Endpoint is for IOT Team to add a new sensor reading into the database.
     [HttpPost("sensor/reading(IOT)")]
-    public async Task<IActionResult> AddSensorReading([FromBody] SensorReading reading)
+    public async Task<IActionResult> AddSensorReading([FromBody] SensorReadingDto readingDto, [FromQuery] int sensorId)
     {
-        await sensorService.AddSensorReadingAsync(reading);
-        return Ok("Sensor reading added successfully.");
+        try
+        {
+            var sensor = await sensorService.GetByIdAsync(sensorId)
+                         ?? throw new KeyNotFoundException($"Sensor with ID {sensorId} not found");
+            
+            var reading = new SensorReading(
+                readingDto.TimeStamp,
+                readingDto.Value,
+                readingDto.Unit,
+                sensor
+            );
+            
+            await sensorService.AddSensorReadingAsync(reading);
+            return Ok("Sensor reading added successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     [HttpGet("latest/all")]

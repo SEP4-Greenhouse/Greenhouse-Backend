@@ -125,7 +125,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 // if there will be a need to add a new sensor, we can use this method
     [HttpPost("{id}/sensors")]
-    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] SensorDTO sensorDto)
+    public async Task<IActionResult> AddSensorToGreenhouse(int id, [FromBody] SensorDto sensorDto)
     {
         try
         {
@@ -146,7 +146,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     
 // if there will be a need to add a new Actuator, we can use this method
     [HttpPost("{id}/actuators")]
-    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] ActuatorDTO actuatorDto)
+    public async Task<IActionResult> AddActuatorToGreenhouse(int id, [FromBody] ActuatorDto actuatorDto)
     {
         try
         {
@@ -243,7 +243,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
     
     [HttpPut("{greenhouseId}/sensors/{sensorId}")]
-    public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] SensorDTO updatedSensor)
+    public async Task<IActionResult> UpdateSensorInGreenhouse(int greenhouseId, int sensorId, [FromBody] SensorDto updatedSensor)
     {
         try
         {
@@ -293,7 +293,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         }
     }   
     [HttpPut("{greenhouseId}/actuators/{actuatorId}")]
-    public async Task<IActionResult> UpdateActuatorInGreenhouse(int greenhouseId, int actuatorId, [FromBody] ActuatorDTO updatedActuator)
+    public async Task<IActionResult> UpdateActuatorInGreenhouse(int greenhouseId, int actuatorId, [FromBody] ActuatorDto updatedActuator)
     {
         try
         {

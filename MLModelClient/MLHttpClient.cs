@@ -21,7 +21,7 @@ public class MlHttpClient : IMlHttpClient
         _logger = logger; // Initialize logger
     }
 
-    public async Task<PredictionLog?> PredictAsync(SensorDataDto input)
+    public async Task<PredictionLog?> PredictAsync(SensorReadingDto input)
     {
         try
         {

@@ -14,11 +14,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IMlModelService, MlModelService>();
+//builder.Services.AddScoped<IMlModelService, MlModelService>();
 builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
 builder.Services.AddScoped<IActuatorActionRepository, ActuatorActionRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
+builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGreenhouseService, GreenhouseService.Services.GreenhouseService>();
@@ -27,6 +28,8 @@ builder.Services.AddScoped<IActuatorRepository, ActuatorRepository>();
 builder.Services.AddScoped<IAlertService, AlertService.Services.AlertService>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
+builder.Services.AddScoped<IActuatorService, ActuatorService>();
+
 
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {

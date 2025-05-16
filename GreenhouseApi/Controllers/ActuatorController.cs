@@ -1,3 +1,4 @@
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IServices;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,12 @@ public class ActuatorController(IActuatorService actuatorService) : ControllerBa
     //but for now it only adds it to the Database.
     //(For Example: Turn on the water pump, turn off the water pump, etc.)
     [HttpPost("{id}/action")]
-    public async Task<IActionResult> TriggerActuatorAction(int id, [FromBody] ActuatorAction actuatorAction)
+    public async Task<IActionResult> TriggerActuatorAction(int id, [FromBody] ActuatorActionDto actionDto)
     {
         try
         {
             var triggeredAction = await actuatorService.TriggerActuatorActionAsync(
-                id, actuatorAction.Type, actuatorAction.Value);
+                id, actionDto.Type, actionDto.Value);
             return Ok(triggeredAction);
         }
         catch (KeyNotFoundException ex)
@@ -27,6 +28,10 @@ public class ActuatorController(IActuatorService actuatorService) : ControllerBa
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 }
