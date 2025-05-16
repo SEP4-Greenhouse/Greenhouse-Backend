@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -19,6 +20,7 @@ namespace Domain.Entities
         public List<ActuatorAction> Actions { get; private set; }
 
         // Parameterless constructor for EF Core
+        [JsonConstructor]
         protected Actuator()
         {
             Status = string.Empty;

@@ -12,14 +12,14 @@ public interface IGreenhouseService : IBaseService<Greenhouse>
     
     // Relationship management
     Task<Plant> AddPlantToGreenhouseAsync(int greenhouseId, Plant plant);
-    Task RemovePlantFromGreenhouseAsync(int greenhouseId, int plantId);
+    Task DeletePlantFromGreenhouseAsync(int greenhouseId, int plantId);
     
     Task AddSensorToGreenhouseAsync(int greenhouseId, Sensor sensor);
-    Task RemoveSensorFromGreenhouseAsync(int greenhouseId, int sensorId);
+    Task DeleteSensorFromGreenhouseAsync(int greenhouseId, int sensorId);
     
     Task AddActuatorToGreenhouseAsync(int greenhouseId, Actuator actuator);
-    Task RemoveActuatorFromGreenhouseAsync(int greenhouseId, int actuatorId);
-    
-    // Specialized operations
-    Task UpdatePlantTypeAsync(int greenhouseId, string newPlantType);
+    Task DeleteActuatorFromGreenhouseAsync(int greenhouseId, int actuatorId);
+    Task UpdateSensorInGreenhouseAsync(int greenhouseId, int sensorId, Sensor updatedSensor);
+    Task UpdateActuatorInGreenhouseAsync(int greenhouseId, int actuatorId, Actuator updatedActuator);
+    Task UpdatePlantInGreenhouseAsync(int greenhouseId, int plantId, Plant updatedPlant);
 }

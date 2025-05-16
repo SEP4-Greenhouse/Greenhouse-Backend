@@ -5,10 +5,7 @@ namespace Domain.IServices
     public interface ISensorService : IBaseService<Sensor>
     {
         // SensorReading CRUD operations
-        Task<SensorReading> GetReadingByIdAsync(int readingId);
         Task AddSensorReadingAsync(SensorReading reading);
-        Task UpdateSensorReadingAsync(SensorReading reading);
-        Task DeleteSensorReadingAsync(int readingId);
         
         // SensorReading query methods
         Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync();
