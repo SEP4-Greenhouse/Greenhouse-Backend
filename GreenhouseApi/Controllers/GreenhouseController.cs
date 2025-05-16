@@ -199,10 +199,21 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     }
 
     [HttpPost("{id}/plants")]
-    public async Task<IActionResult> AddPlantToGreenhouse(int id, [FromBody] Plant plant)
+    public async Task<IActionResult> AddPlantToGreenhouse(int id, [FromBody] PlantDto plantDto)
     {
         try
         {
+            // First get the greenhouse by id
+            var greenhouse = await greenhouseService.GetByIdAsync(id);
+        
+            // Create a new Plant object from the DTO data
+            var plant = new Plant(
+                plantDto.Species, 
+                plantDto.PlantingDate, 
+                plantDto.GrowthStage, 
+                greenhouse
+            );
+        
             await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
             return Ok("Plant added to greenhouse successfully.");
         }
@@ -215,4 +226,38 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
+    
+    // [HttpPut("plants/{plantId}")]
+    // public async Task<IActionResult> UpdatePlant(int plantId, [FromBody] PlantDto updateDto)
+    // {
+    //     try
+    //     {
+    //         // Get existing plant
+    //         var plant = await greenhouseService.GetPlantByIdAsync(plantId);
+    //     
+    //         // Update plant properties based on DTO
+    //         if (!string.IsNullOrEmpty(updateDto.Species))
+    //         {
+    //             plant.UpdateSpecies(updateDto.Species);
+    //         }
+    //     
+    //         if (!string.IsNullOrEmpty(updateDto.GrowthStage))
+    //         {
+    //             plant.UpdateGrowthStage(updateDto.GrowthStage);
+    //         }
+    //     
+    //         // Save changes
+    //         await greenhouseService.UpdatePlantAsync(plant);
+    //     
+    //         return Ok("Plant updated successfully.");
+    //     }
+    //     catch (KeyNotFoundException ex)
+    //     {
+    //         return NotFound(ex.Message);
+    //     }
+    //     catch (ArgumentException ex)
+    //     {
+    //         return BadRequest(ex.Message);
+    //     }
+    // }
 }
