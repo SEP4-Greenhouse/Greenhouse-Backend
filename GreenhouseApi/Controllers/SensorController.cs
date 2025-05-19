@@ -38,14 +38,14 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-
+    //This endpoint is for getting all latest SensorReadings from each sensor
     [HttpGet("latest/all")]
     public async Task<IActionResult> GetLatestReadingFromAllSensors()
     {
         var readings = await sensorService.GetLatestReadingFromAllSensorsAsync();
         return Ok(readings);
     }
-
+    
     [HttpGet("sensor/readings")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
