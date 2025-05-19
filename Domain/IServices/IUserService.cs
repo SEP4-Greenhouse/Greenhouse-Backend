@@ -5,9 +5,11 @@ namespace Domain.IServices;
 
 public interface IUserService 
 {
-    Task<User?> GetUserByIdAsync(int id);
+    Task<UserDto?> GetUserByIdAsync(int id);
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
-    Task AddUserAsync(UserDto userDto, string hashedPassword);
-    Task UpdateUserAsync(UserDto userDto);
+    Task<UserDto> AddUserAsync(UserDto userDto, string hashedPassword);
+    //Task UpdateUserAsync(UserDto userDto);
     Task DeleteUserAsync(int id);
+    Task UpdatePasswordAsync(int userId, string newPassword);
+    Task UpdateNameAsync(int userId, string newName);
 }

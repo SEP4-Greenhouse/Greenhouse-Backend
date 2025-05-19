@@ -19,13 +19,15 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             var sensor = await sensorService.GetByIdAsync(sensorId)
                          ?? throw new KeyNotFoundException($"Sensor with ID {sensorId} not found");
             
+            var utcTimestamp = DateTime.SpecifyKind(readingDto.TimeStamp, DateTimeKind.Utc);
+            
             var reading = new SensorReading(
-                readingDto.TimeStamp,
+                utcTimestamp,
                 readingDto.Value,
-                readingDto.Unit,
+                sensor.Unit,
                 sensor
             );
-            
+        
             await sensorService.AddSensorReadingAsync(reading);
             return Ok("Sensor reading added successfully.");
         }
@@ -43,28 +45,76 @@ public class SensorController(ISensorService sensorService) : ControllerBase
     public async Task<IActionResult> GetLatestReadingFromAllSensors()
     {
         var readings = await sensorService.GetLatestReadingFromAllSensorsAsync();
-        return Ok(readings);
+    
+        var simplifiedReadings = readings.Select(r => new
+        {
+            Id = r.Id,
+            TimeStamp = r.TimeStamp,
+            Value = r.Value,
+            Unit = r.Unit,
+            SensorId = r.SensorId
+        }).ToList();
+    
+        return Ok(simplifiedReadings);
     }
     
     [HttpGet("sensor/readings")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
-        var readings = await sensorService.GetReadingsBySensorAsync();
-        return Ok(readings);
+        var readingsBySensor = await sensorService.GetReadingsBySensorAsync();
+    
+        var simplifiedReadings = readingsBySensor.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value.Select(r => new
+            {
+                Id = r.Id,
+                TimeStamp = r.TimeStamp,
+                Value = r.Value,
+                Unit = r.Unit
+            }).ToList()
+        );
+    
+        return Ok(simplifiedReadings);
     }
 
     [HttpGet("sensor/latest")]
     public async Task<IActionResult> GetLatestReadingBySensor()
     {
-        var readings = await sensorService.GetLatestReadingBySensorAsync();
-        return Ok(readings);
+        var latestReadings = await sensorService.GetLatestReadingBySensorAsync();
+    
+        var simplifiedReadings = latestReadings.ToDictionary(
+            kvp => kvp.Key,
+            kvp => new
+            {
+                Id = kvp.Value.Id,
+                TimeStamp = kvp.Value.TimeStamp,
+                Value = kvp.Value.Value,
+                Unit = kvp.Value.Unit
+            }
+        );
+    
+        return Ok(simplifiedReadings);
     }
 
     [HttpGet("range")]
     public async Task<IActionResult> GetReadingsByTimestampRange([FromQuery] DateTime start, [FromQuery] DateTime end)
     {
-        var readings = await sensorService.GetReadingsByTimestampRangeAsync(start, end);
-        return Ok(readings);
+        // Convert dates to UTC
+        var startUtc = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+        var endUtc = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+        
+        var readings = await sensorService.GetReadingsByTimestampRangeAsync(startUtc, endUtc);
+    
+        var simplifiedReadings = readings.Select(r => new
+        {
+            Id = r.Id,
+            TimeStamp = r.TimeStamp,
+            Value = r.Value,
+            Unit = r.Unit,
+            SensorId = r.SensorId
+        }).ToList();
+    
+        return Ok(simplifiedReadings);
     }
 
     [HttpGet("sensor/{sensorId}/paginated")]
@@ -72,14 +122,43 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         [FromQuery] int pageSize)
     {
         var readings = await sensorService.GetReadingsPaginatedAsync(sensorId, pageNumber, pageSize);
-        return Ok(readings);
+    
+        var simplifiedReadings = readings.Select(r => new
+        {
+            Id = r.Id,
+            TimeStamp = r.TimeStamp,
+            Value = r.Value,
+            Unit = r.Unit
+        }).ToList();
+    
+        return Ok(simplifiedReadings);
     }
 
     [HttpGet("sensor/{sensorId}/average")]
     public async Task<IActionResult> GetAverageReading(int sensorId, [FromQuery] DateTime start,
         [FromQuery] DateTime end)
     {
-        var avg = await sensorService.GetAverageReadingForSensorAsync(sensorId, start, end);
-        return Ok(avg);
+        try
+        {
+            var startUtc = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            var endUtc = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            
+            var avg = await sensorService.GetAverageReadingForSensorAsync(sensorId, startUtc, endUtc);
+            
+            var sensor = await sensorService.GetByIdAsync(sensorId);
+            if (sensor == null)
+                return NotFound($"Sensor with ID {sensorId} not found");
+
+            return Ok(new {
+                Average = avg,
+                Unit = sensor.Unit,
+                SensorId = sensorId,
+                TimeRange = new { Start = start, End = end }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 }

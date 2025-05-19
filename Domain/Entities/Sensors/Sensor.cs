@@ -13,20 +13,18 @@ public class Sensor
 
     [Required] [MaxLength(100)] public string Status { get; private set; }
 
+    [Required] [MaxLength(50)] public string Unit { get; private set; }
     [ForeignKey("Greenhouse")] public int GreenhouseId { get; private set; }
 
     public Greenhouse Greenhouse { get; private set; }
 
     public ICollection<SensorReading> Readings { get; private set; } = new List<SensorReading>();
 
-    public Sensor(string type, string status, Greenhouse greenhouse)
+    public Sensor(string type, string status, string unit, Greenhouse greenhouse)
     {
-        //if (id <= 0)
-          //  throw new ArgumentException("ID must be greater than zero.");
-
-        //Id = id;
         Type = type;
         Status = status;
+        Unit = unit ?? throw new ArgumentNullException(nameof(unit));
         Greenhouse = greenhouse ?? throw new ArgumentNullException(nameof(greenhouse));
         GreenhouseId = greenhouse.Id;
     }
