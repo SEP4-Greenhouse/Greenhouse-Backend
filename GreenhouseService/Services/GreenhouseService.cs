@@ -129,9 +129,11 @@ namespace GreenhouseService.Services
             var existingPlant = await plantRepository.GetByIdAsync(plantId);
             if (existingPlant == null || existingPlant.GreenhouseId != greenhouseId)
                 throw new KeyNotFoundException($"Plant with ID {plantId} not found in greenhouse {greenhouseId}");
-
-            greenhouse.UpdatePlantType(updatedPlant.Species);
-            await greenhouseRepository.UpdateAsync(greenhouse);
+            
+            existingPlant.UpdateSpecies(updatedPlant.Species);
+            existingPlant.UpdateGrowthStage(updatedPlant.GrowthStage);
+            
+            await plantRepository.UpdateAsync(existingPlant);
         }
     }
 }

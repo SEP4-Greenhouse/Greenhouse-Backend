@@ -17,9 +17,9 @@ public class ActuatorController(IActuatorService actuatorService) : ControllerBa
     {
         try
         {
-            var triggeredAction = await actuatorService.TriggerActuatorActionAsync(
-                id, actionDto.Type, actionDto.Value);
-            return Ok(triggeredAction);
+            await actuatorService.TriggerActuatorActionAsync(
+                id, actionDto.Action, actionDto.Value);
+            return Ok();
         }
         catch (KeyNotFoundException ex)
         {

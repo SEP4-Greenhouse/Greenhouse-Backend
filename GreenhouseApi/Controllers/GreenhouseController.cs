@@ -170,21 +170,21 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         }
     }
 
-    [HttpPut("{greenhouseId}/plantsGrowingStage/{plantId}")]
-    public async Task<IActionResult> UpdatePlantInGreenhouse(int greenhouseId, int plantId, [FromBody] PlantDto plantDto)
+    [HttpPut("{greenhouseId}/plants/{plantId}/growthstage")]
+    public async Task<IActionResult> UpdatePlantGrowthStage(int greenhouseId, int plantId, [FromBody] string newGrowthStage)
     {
         try
         {
             var existingPlant = await greenhouseService.GetPlantsByGreenhouseIdAsync(greenhouseId)
                 .ContinueWith(t => t.Result.FirstOrDefault(p => p.Id == plantId));
-            
+        
             if (existingPlant == null)
                 return NotFound($"Plant with ID {plantId} not found in greenhouse {greenhouseId}");
-            
-            existingPlant.UpdateGrowthStage(plantDto.GrowthStage);
-            
+        
+            existingPlant.UpdateGrowthStage(newGrowthStage);
+        
             await greenhouseService.UpdatePlantInGreenhouseAsync(greenhouseId, plantId, existingPlant);
-            return Ok("Plant updated successfully.");
+            return Ok("Plant growth stage updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
@@ -195,22 +195,22 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             return BadRequest(ex.Message);
         }
     }
-    
-    [HttpPut("{greenhouseId}/plantsSpecies/{plantId}")]
-    public async Task<IActionResult> UpdatePlantSpeciesInGreenhouse(int greenhouseId, int plantId, [FromBody] PlantDto plantDto)
+
+    [HttpPut("{greenhouseId}/plants/{plantId}/species")]
+    public async Task<IActionResult> UpdatePlantSpecies(int greenhouseId, int plantId, [FromBody] string newSpecies)
     {
         try
         {
             var existingPlant = await greenhouseService.GetPlantsByGreenhouseIdAsync(greenhouseId)
                 .ContinueWith(t => t.Result.FirstOrDefault(p => p.Id == plantId));
-            
+        
             if (existingPlant == null)
                 return NotFound($"Plant with ID {plantId} not found in greenhouse {greenhouseId}");
-            
-            existingPlant.UpdateSpecies(plantDto.Species);
-            
+        
+            existingPlant.UpdateSpecies(newSpecies);
+        
             await greenhouseService.UpdatePlantInGreenhouseAsync(greenhouseId, plantId, existingPlant);
-            return Ok("Plant updated successfully.");
+            return Ok("Plant species updated successfully.");
         }
         catch (KeyNotFoundException ex)
         {
