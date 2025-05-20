@@ -4,7 +4,7 @@ public class ActuatorActionDto
 {
     public DateTime Timestamp { get; set; }
 
-    public string Type { get; set; }
+    public string Action { get; set; }
 
     public double Value { get; set; }
 }

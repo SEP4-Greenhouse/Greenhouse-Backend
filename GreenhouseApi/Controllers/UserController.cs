@@ -1,76 +1,95 @@
-using Domain.DTOs;
+using System.Security.Claims;
 using Domain.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenhouseApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/user")]
 public class UserController(IUserService userService) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(int id)
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyUserInfo()
     {
-        var user = await userService.GetUserByIdAsync(id);
-        if (user == null)
-            return NotFound("User not found.");
-        return Ok(user);
-    }
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllUsers()
-    {
-        var users = await userService.GetAllUsersAsync();
-        return Ok(users);
-    }
+        var userDto = await userService.GetUserByIdAsync(userId.Value);
+        if (userDto == null) return NotFound("User not found.");
 
-    [HttpPost]
-    public async Task<IActionResult> AddUser([FromBody] CreateUserDto createUserDto)
-    {
-        try
+        return Ok(new
         {
-            var userDto = new UserDto(0, createUserDto.Name, createUserDto.Email);
-            await userService.AddUserAsync(userDto, createUserDto.Password);
-            return CreatedAtAction(nameof(GetUserById), new { id = userDto.Id }, userDto);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
+            id = userDto.Id,
+            name = userDto.Name,
+            email = userDto.Email
+        });
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDto userDto)
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser()
     {
-        if (id != userDto.Id)
-            return BadRequest("User ID mismatch.");
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
 
         try
         {
-            await userService.UpdateUserAsync(userDto);
+            await userService.DeleteUserAsync(userId.Value);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
         }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
+    [HttpPut("name")]
+    public async Task<IActionResult> UpdateUserName([FromBody] string newName)
     {
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
+
         try
         {
-            await userService.DeleteUserAsync(id);
+            await userService.UpdateNameAsync(userId.Value, newName);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPut("password")]
+    public async Task<IActionResult> UpdateUserPassword([FromBody] string newPassword)
+    {
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
+
+        try
+        {
+            await userService.UpdatePasswordAsync(userId.Value, newPassword);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    private int? GetUserIdFromClaims()
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return null;
+        return int.TryParse(userIdClaim.Value, out var userId) ? userId : (int?)null;
     }
 }

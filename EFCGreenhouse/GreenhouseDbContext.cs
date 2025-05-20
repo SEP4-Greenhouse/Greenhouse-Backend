@@ -28,6 +28,22 @@ public class GreenhouseDbContext : DbContext
             .WithOne(g => g.User)
             .HasForeignKey(g => g.UserId);
 
+        modelBuilder.Entity<Greenhouse>()
+            .Property(g => g.Id)
+            .HasColumnOrder(0);
+    
+        modelBuilder.Entity<Greenhouse>()
+            .Property(g => g.Name)
+            .HasColumnOrder(1);
+    
+        modelBuilder.Entity<Greenhouse>()
+            .Property(g => g.PlantType)
+            .HasColumnOrder(2);
+    
+        modelBuilder.Entity<Greenhouse>()
+            .Property(g => g.UserId)
+            .HasColumnOrder(3);
+        
         // Greenhouse has Plants
         modelBuilder.Entity<Greenhouse>()
             .HasMany(g => g.Plants)

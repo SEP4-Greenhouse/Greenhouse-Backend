@@ -9,7 +9,7 @@ namespace Domain.Entities
 
         [Required] public DateTime Timestamp { get; private set; }
 
-        [Required] [MaxLength(100)] public string Type { get; private set; }
+        [Required] [MaxLength(100)] public string Action { get; private set; }
 
         [Required] public double Value { get; private set; }
 
@@ -18,13 +18,13 @@ namespace Domain.Entities
 
         public List<Alert> TriggeredAlerts { get; private set; }
 
-        public ActuatorAction(DateTime timestamp, string type, double value, Actuator actuator)
+        public ActuatorAction(DateTime timestamp, string action, double value, Actuator actuator)
         {
-            if (string.IsNullOrWhiteSpace(type))
+            if (string.IsNullOrWhiteSpace(action))
                 throw new ArgumentException("Type cannot be empty.");
 
             Timestamp = timestamp;
-            Type = type;
+            Action = action;
             Value = value;
             Actuator = actuator ?? throw new ArgumentNullException(nameof(actuator));
             ActuatorId = actuator.Id;

@@ -1,10 +1,11 @@
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenhouseApi.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("api/actuator")]
 public class ActuatorController(IActuatorService actuatorService) : ControllerBase
@@ -17,9 +18,9 @@ public class ActuatorController(IActuatorService actuatorService) : ControllerBa
     {
         try
         {
-            var triggeredAction = await actuatorService.TriggerActuatorActionAsync(
-                id, actionDto.Type, actionDto.Value);
-            return Ok(triggeredAction);
+            await actuatorService.TriggerActuatorActionAsync(
+                id, actionDto.Action, actionDto.Value);
+            return Ok();
         }
         catch (KeyNotFoundException ex)
         {
