@@ -40,8 +40,8 @@ jobs:
         run: |
             echo "Waiting for backend to start..."
             for i in {1..10}; do
-              if curl -s -f http://localhost:5001/api/User; then
-                echo "Backend is responding."
+              if curl -s -f http://localhost:5001/api/Auth/health          
+              echo "Backend is responding."
                 exit 0
               else
                 echo "Waiting ($i)..."

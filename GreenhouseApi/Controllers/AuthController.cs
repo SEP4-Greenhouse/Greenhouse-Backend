@@ -48,4 +48,10 @@ public class AuthController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    [HttpGet("health")]
+    public IActionResult HealthCheck()
+    {
+        return Ok("Backend is alive");
+    }
+
 }
