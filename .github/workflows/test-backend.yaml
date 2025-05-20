@@ -26,32 +26,32 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t greenhouse-backend:local .
-        
+
       - name: Create Docker network
         run: docker network create greenhouse-network || true
-        
+
       - name: Run backend container
         run: |
-            docker run --rm --name backend --network greenhouse-network \
-              -e AIVEN_DB_CONNECTION="${{ secrets.AIVEN_DB_CONNECTION }}" \
-              -d -p 5001:5001 greenhouse-backend:local
-        
+          docker run --rm --name backend --network greenhouse-network \
+            -e AIVEN_DB_CONNECTION="${{ secrets.AIVEN_DB_CONNECTION }}" \
+            -d -p 5001:5001 greenhouse-backend:local
+
       - name: Wait for backend to be ready and test API
         run: |
-            echo "Waiting for backend to start..."
-            for i in {1..10}; do
-              if curl -s -f http://localhost:5001/api/Auth/health          
-              echo "Backend is responding."
-                exit 0
-              else
-                echo "Waiting ($i)..."
-                sleep 3
-              fi
-            done
-            echo "Backend did not respond in time."
-            exit 1
-          
+          echo "Waiting for backend to start..."
+          for i in {1..10}; do
+            if curl -s -f http://localhost:5001/api/Auth/health; then      
+            echo "Backend is responding."
+              exit 0
+            else
+              echo "Waiting ($i)..."
+              sleep 3
+            fi
+          done
+          echo "Backend did not respond in time."
+          exit 1
+
       - name: Cleanup
         run: |
-            docker stop backend || true
-            docker network rm greenhouse-network || true
+          docker stop backend || true
+          docker network rm greenhouse-network || true
