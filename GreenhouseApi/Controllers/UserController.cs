@@ -1,71 +1,41 @@
-using Domain.DTOs;
+using System.Security.Claims;
 using Domain.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenhouseApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/user")]
 public class UserController(IUserService userService) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(int id)
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyUserInfo()
     {
-        var userDto = await userService.GetUserByIdAsync(id);
-        if (userDto == null)
-            return NotFound("User not found.");
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
 
-        var userResponse = new {
+        var userDto = await userService.GetUserByIdAsync(userId.Value);
+        if (userDto == null) return NotFound("User not found.");
+
+        return Ok(new
+        {
             id = userDto.Id,
             name = userDto.Name,
-            email = userDto.Email,
-        };
-
-        return Ok(userResponse);
+            email = userDto.Email
+        });
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllUsers()
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUser()
     {
-        var users = await userService.GetAllUsersAsync();
-        
-        var userResponses = users.Select(user => new {
-            id = user.Id,
-            name = user.Name,
-            email = user.Email,
-        }).ToList();
-    
-        return Ok(userResponses);
-    }
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
 
-    [HttpPost]
-    public async Task<IActionResult> AddUser([FromBody] CreateUserDto createUserDto)
-    {
         try
         {
-            var userDto = new UserDto(0, createUserDto.Name, createUserDto.Email);
-            var createdUser = await userService.AddUserAsync(userDto, createUserDto.Password);
-
-            var userResponse = new {
-                id = createdUser.Id,
-                name = createdUser.Name,
-                email = createdUser.Email
-            };
-
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, userResponse);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        try
-        {
-            await userService.DeleteUserAsync(id);
+            await userService.DeleteUserAsync(userId.Value);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -73,13 +43,16 @@ public class UserController(IUserService userService) : ControllerBase
             return NotFound(ex.Message);
         }
     }
-    
-    [HttpPut("{id}/name")]
-    public async Task<IActionResult> UpdateUserName(int id, [FromBody] string newName)
+
+    [HttpPut("name")]
+    public async Task<IActionResult> UpdateUserName([FromBody] string newName)
     {
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
+
         try
         {
-            await userService.UpdateNameAsync(id, newName);
+            await userService.UpdateNameAsync(userId.Value, newName);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -92,12 +65,15 @@ public class UserController(IUserService userService) : ControllerBase
         }
     }
 
-    [HttpPut("{id}/password")]
-    public async Task<IActionResult> UpdateUserPassword(int id, [FromBody] string newPassword)
+    [HttpPut("password")]
+    public async Task<IActionResult> UpdateUserPassword([FromBody] string newPassword)
     {
+        var userId = GetUserIdFromClaims();
+        if (userId == null) return Unauthorized();
+
         try
         {
-            await userService.UpdatePasswordAsync(id, newPassword);
+            await userService.UpdatePasswordAsync(userId.Value, newPassword);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -108,5 +84,12 @@ public class UserController(IUserService userService) : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    private int? GetUserIdFromClaims()
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return null;
+        return int.TryParse(userIdClaim.Value, out var userId) ? userId : (int?)null;
     }
 }

@@ -10,4 +10,10 @@ public class UserRepository(GreenhouseDbContext context) : BaseRepository<User>(
     {
         return await DbSet.AnyAsync(u => u.Email == email);
     }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await DbSet.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
 }

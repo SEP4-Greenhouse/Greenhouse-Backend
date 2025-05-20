@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using Domain.DTOs;
 using Domain.Entities;
 using Domain.IRepositories;
@@ -36,26 +34,9 @@ public class UserService(IUserRepository userRepository) : IUserService
 
         var user = new User(userDto.Name, userDto.Email, hashedPassword);
         var createdUser = await userRepository.AddAsync(user);
-        
+
         return new UserDto(createdUser.Id, createdUser.Name, createdUser.Email);
     }
-
-    // public async Task UpdateUserAsync(UserDto userDto)
-    // {
-    //     if (userDto.Id <= 0)
-    //         throw new ArgumentException("User ID must be greater than zero.");
-    //
-    //     var user = await userRepository.GetByIdAsync(userDto.Id);
-    //     if (user == null)
-    //         throw new KeyNotFoundException("User not found.");
-    //
-    //     if (user.Email != userDto.Email && await userRepository.ExistsByEmailAsync(userDto.Email))
-    //         throw new InvalidOperationException("A user with the same email already exists.");
-    //
-    //     user.ChangeName(userDto.Name);
-    //     user.UpdateEmail(userDto.Email);
-    //     await userRepository.UpdateAsync(user);
-    // }
 
     public async Task DeleteUserAsync(int id)
     {
@@ -102,8 +83,6 @@ public class UserService(IUserRepository userRepository) : IUserService
 
     private string HashPassword(string password)
     {
-        using var sha256 = SHA256.Create();
-        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(bytes);
+        return BCrypt.Net.BCrypt.HashPassword(password);
     }
 }
