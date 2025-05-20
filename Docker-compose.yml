@@ -7,17 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
-    volumes:
-      - ./EFCGreenhouse/greenhouse.db:/app/greenhouse.db
+    env_file:
+      - .env
     environment:
-      - AIVEN_DB_CONNECTION=${AIVEN_DB_CONNECTION}
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-networks:
-  default:
-    external:
-      name: greenhouse-network
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped

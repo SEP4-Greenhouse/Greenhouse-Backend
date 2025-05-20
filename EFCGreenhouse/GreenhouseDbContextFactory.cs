@@ -9,6 +9,13 @@ namespace EFCGreenhouse
         {
             var optionsBuilder = new DbContextOptionsBuilder<GreenhouseDbContext>();
             var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
+            
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Database connection string not found. Set the AIVEN_DB_CONNECTION environment variable.");
+            }
+            
             optionsBuilder.UseNpgsql(connectionString);
             return new GreenhouseDbContext(optionsBuilder.Options);
         }

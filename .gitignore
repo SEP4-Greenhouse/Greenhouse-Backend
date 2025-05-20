@@ -548,3 +548,4 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,rider,csharp,jetbrains+all
 .DS_Store
+.env

@@ -66,8 +66,12 @@ builder.Services.AddCors(options =>
 
 // DB Context
 var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Database connection string not found. Set the AIVEN_DB_CONNECTION environment variable.");
+}
 builder.Services.AddDbContext<GreenhouseDbContext>(options =>
-    options.UseNpgsql(connectionString)
+        options.UseNpgsql(connectionString)
 );
 
 // HTTP Client
