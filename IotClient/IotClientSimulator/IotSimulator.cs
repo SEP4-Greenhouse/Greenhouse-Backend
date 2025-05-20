@@ -1,3 +1,4 @@
+/*
 // IotClient/IotClientSimulator/IotSimulator.cs
 // Simulation logic developed collaboratively with ChatGPT (OpenAI) for educational use
 using System.Text;
@@ -11,8 +12,8 @@ public class IotSimulator
     private readonly HttpClient _httpClient;
     private readonly Timer _timer;
     private readonly Dictionary<string, float> _currentSensorValues;
-    private readonly string _backendSensorUrl = "http://localhost:5001/api/sensor/sensor/reading(IOT)";
-    private readonly string _backendActuatorUrl = "http://localhost:5001/api/actuator/{0}/action";
+    private readonly string _backendSensorUrl = "http://localhost:5000/api/sensor/sensor/reading(IOT)";
+    private readonly string _backendActuatorUrl = "http://localhost:5000/api/actuator/{0}/action";
     private readonly Greenhouse _greenhouse;
 
     public IotSimulator()
@@ -20,7 +21,9 @@ public class IotSimulator
         _httpClient = new HttpClient();
 
         // Simulate a greenhouse to associate with sensors
-        _greenhouse = new Greenhouse("SimulatedGreenhouse", new User("SimUser", "iot@example.com", "pass"));
+      
+        _greenhouse = new Greenhouse("SimulatedGreenhouse", new User("SimulatedUser", "simulator@gmail.com", "password"));
+        
         typeof(Greenhouse).GetProperty("Id")?.SetValue(_greenhouse, 1);
 
         // Initial simulated values for each sensor type
@@ -128,3 +131,4 @@ public class IotSimulator
         return (float)(min + rand.NextDouble() * (max - min));
     }
 }
+*/
