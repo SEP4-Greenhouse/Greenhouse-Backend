@@ -12,7 +12,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 {
     
     // This Endpoint is for IOT Team to add a new sensor reading into the database.
-    [HttpPost("sensor/reading(IOT)")]
+    [HttpPost("readings(IOT)")]
     public async Task<IActionResult> AddSensorReading([FromBody] SensorReadingDto readingDto, [FromQuery] int sensorId)
     {
         try
@@ -42,7 +42,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         }
     }
     //This endpoint is for getting all latest SensorReadings from each sensor
-    [HttpGet("latest/all")]
+    [HttpGet("latest/eachSensor")]
     public async Task<IActionResult> GetLatestReadingFromAllSensors()
     {
         var readings = await sensorService.GetLatestReadingFromAllSensorsAsync();
@@ -59,7 +59,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
     
-    [HttpGet("sensor/readings")]
+    [HttpGet("all")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
         var readingsBySensor = await sensorService.GetReadingsBySensorAsync();
@@ -78,29 +78,79 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("sensor/latest")]
-    public async Task<IActionResult> GetLatestReadingBySensor()
+    [HttpGet("{sensorId}/allPerSensor")]
+    public async Task<IActionResult> GetAllReadingsBySensor(int sensorId)
     {
-        var latestReadings = await sensorService.GetLatestReadingBySensorAsync();
-    
-        var simplifiedReadings = latestReadings.ToDictionary(
-            kvp => kvp.Key,
-            kvp => new
+        try
+        {
+            var sensor = await sensorService.GetByIdAsync(sensorId)
+                         ?? throw new KeyNotFoundException($"Sensor with ID {sensorId} not found");
+            
+            var readingsBySensor = await sensorService.GetReadingsBySensorAsync();
+            
+            if (!readingsBySensor.TryGetValue(sensorId, out var readings) || !readings.Any())
             {
-                Id = kvp.Value.Id,
-                TimeStamp = kvp.Value.TimeStamp,
-                Value = kvp.Value.Value,
-                Unit = kvp.Value.Unit
+                return NotFound($"No readings found for sensor with ID {sensorId}");
             }
-        );
+            
+            var simplifiedReadings = readings.Select(r => new
+            {
+                Id = r.Id,
+                TimeStamp = r.TimeStamp,
+                Value = r.Value,
+                Unit = r.Unit
+            }).ToList();
+
+            return Ok(simplifiedReadings);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
     
-        return Ok(simplifiedReadings);
+    [HttpGet("{sensorId}/latestPerSensor")]
+    public async Task<IActionResult> GetLatestReadingBySensor(int sensorId)
+    {
+        try
+        {
+            var sensor = await sensorService.GetByIdAsync(sensorId)
+                         ?? throw new KeyNotFoundException($"Sensor with ID {sensorId} not found");
+            
+            var latestReadings = await sensorService.GetLatestReadingBySensorAsync();
+            
+            if (!latestReadings.TryGetValue(sensorId, out var reading))
+            {
+                return NotFound($"No readings found for sensor with ID {sensorId}");
+            }
+            
+            var simplifiedReading = new
+            {
+                Id = reading.Id,
+                TimeStamp = reading.TimeStamp,
+                Value = reading.Value,
+                Unit = reading.Unit
+            };
+        
+            return Ok(simplifiedReading);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
-    [HttpGet("range")]
+    [HttpGet("byRange")]
     public async Task<IActionResult> GetReadingsByTimestampRange([FromQuery] DateTime start, [FromQuery] DateTime end)
     {
-        // Convert dates to UTC
         var startUtc = DateTime.SpecifyKind(start, DateTimeKind.Utc);
         var endUtc = DateTime.SpecifyKind(end, DateTimeKind.Utc);
         
@@ -116,50 +166,5 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         }).ToList();
     
         return Ok(simplifiedReadings);
-    }
-
-    [HttpGet("sensor/{sensorId}/paginated")]
-    public async Task<IActionResult> GetPaginatedReadings(int sensorId, [FromQuery] int pageNumber,
-        [FromQuery] int pageSize)
-    {
-        var readings = await sensorService.GetReadingsPaginatedAsync(sensorId, pageNumber, pageSize);
-    
-        var simplifiedReadings = readings.Select(r => new
-        {
-            Id = r.Id,
-            TimeStamp = r.TimeStamp,
-            Value = r.Value,
-            Unit = r.Unit
-        }).ToList();
-    
-        return Ok(simplifiedReadings);
-    }
-
-    [HttpGet("sensor/{sensorId}/average")]
-    public async Task<IActionResult> GetAverageReading(int sensorId, [FromQuery] DateTime start,
-        [FromQuery] DateTime end)
-    {
-        try
-        {
-            var startUtc = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-            var endUtc = DateTime.SpecifyKind(end, DateTimeKind.Utc);
-            
-            var avg = await sensorService.GetAverageReadingForSensorAsync(sensorId, startUtc, endUtc);
-            
-            var sensor = await sensorService.GetByIdAsync(sensorId);
-            if (sensor == null)
-                return NotFound($"Sensor with ID {sensorId} not found");
-
-            return Ok(new {
-                Average = avg,
-                Unit = sensor.Unit,
-                SensorId = sensorId,
-                TimeRange = new { Start = start, End = end }
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
     }
 }
