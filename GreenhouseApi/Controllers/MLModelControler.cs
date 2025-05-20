@@ -1,4 +1,4 @@
-﻿// using Microsoft.AspNetCore.Mvc;
+// using Microsoft.AspNetCore.Mvc;
 // using Domain.DTOs;
 // using Domain.Entities;
 // using Domain.IRepositories;
@@ -6,18 +6,20 @@
 //
 // namespace GreenhouseApi.Controllers;
 //
+// // API route: /api/ml
 // [ApiController]
 // [Route("api/ml")]
 // public class MlModelController(
-//     IMlModelService mlModelService,
-//     IPredictionLogRepository logRepo,
-//     ILogger<MlModelController> logger)
+//     IMlModelService mlModelService,               // Service to handle prediction logic
+//     IPredictionLogRepository logRepo,             // Repository to save prediction logs
+//     ILogger<MlModelController> logger)            // Logger for tracking events and errors
 //     : ControllerBase
 // {
 //     // POST /api/ml/predict
 //     [HttpPost("predict")]
-//     public async Task<ActionResult<PredictionResultDto>> Predict([FromBody] SensorReadingDto input)
+//     public async Task<ActionResult<PredictionResultDto>> Predict([FromBody] SensorDataDto input)
 //     {
+//         // Validate input
 //         if (input == null || input.current == null || input.history == null || !input.history.Any())
 //         {
 //             logger.LogWarning("Invalid sensor data received for prediction.");
@@ -26,6 +28,7 @@
 //
 //         try
 //         {
+//             // Call ML service to make a prediction
 //             var result = await mlModelService.PredictAsync(input);
 //
 //             if (result == null)
@@ -34,12 +37,12 @@
 //                 return StatusCode(500, "Prediction service returned no result.");
 //             }
 //
-//             return Ok(result);
+//             return Ok(result); // Return the prediction
 //         }
 //         catch (ArgumentException ex)
 //         {
 //             logger.LogError(ex, "Validation error occurred while processing prediction.");
-//             return BadRequest(ex.Message);
+//             return BadRequest(ex.Message); // Handle known errors gracefully
 //         }
 //         catch (Exception ex)
 //         {
@@ -48,87 +51,27 @@
 //         }
 //     }
 //
-//     // GET /api/ml/latest-data
-//     [HttpGet("latest-data")]
-//     public ActionResult<IEnumerable<SensorReadingDto>> GetLatestSensorData()
+//     // POST /api/ml/logs
+//     [HttpPost("logs")]
+//     public async Task<IActionResult> LogPrediction([FromBody] PredictionLog log)
 //     {
+//         // Validate input
+//         if (log == null)
+//         {
+//             logger.LogWarning("Null log received.");
+//             return BadRequest("Log data is required.");
+//         }
+//
 //         try
 //         {
-//             // Replace mock data with real sensor data fetching logic
-//             var mockData = new List<SensorReadingDto>
-//             {
-//                 new SensorReadingDto
-//                 {
-//                     current = new SensorData
-//                     {
-//                         SensorType = "Temperature",
-//                         Value = 26.8f,
-//                         Timestamp = DateTime.UtcNow
-//                     },
-//                     history = new List<SensorData>
-//                     {
-//                         new SensorData
-//                         {
-//                             SensorType = "Temperature",
-//                             Value = 26.0f,
-//                             Timestamp = DateTime.UtcNow.AddMinutes(-5)
-//                         },
-//                         new SensorData
-//                         {
-//                             SensorType = "Temperature",
-//                             Value = 25.5f,
-//                             Timestamp = DateTime.UtcNow.AddMinutes(-10)
-//                         }
-//                     }
-//                 },
-//                 new SensorReadingDto
-//                 {
-//                     current = new SensorData
-//                     {
-//                         SensorType = "Humidity",
-//                         Value = 34.5f,
-//                         Timestamp = DateTime.UtcNow
-//                     },
-//                     history = new List<SensorData>
-//                     {
-//                         new SensorData
-//                         {
-//                             SensorType = "Humidity",
-//                             Value = 33.0f,
-//                             Timestamp = DateTime.UtcNow.AddMinutes(-5)
-//                         },
-//                         new SensorData
-//                         {
-//                             SensorType = "Humidity",
-//                             Value = 32.5f,
-//                             Timestamp = DateTime.UtcNow.AddMinutes(-10)
-//                         }
-//                     }
-//                 }
-//             };
-//
-//             return Ok(mockData);
+//             // Save log to database
+//             await logRepo.AddAsync(log);
+//             return Ok("Prediction log saved successfully.");
 //         }
 //         catch (Exception ex)
 //         {
-//             logger.LogError(ex, "Error occurred while fetching the latest sensor data.");
-//             return StatusCode(500, "An error occurred while fetching the latest sensor data.");
-//         }
-//     }
-//
-//     // GET /api/ml/logs
-//     [HttpGet("logs")]
-//     public async Task<ActionResult<IEnumerable<PredictionLog>>> GetAllLogs()
-//     {
-//         try
-//         {
-//             var logs = await logRepo.GetAllAsync();
-//             return Ok(logs);
-//         }
-//         catch (Exception ex)
-//         {
-//             logger.LogError(ex, "Error occurred while fetching prediction logs.");
-//             return StatusCode(500, "An error occurred while fetching prediction logs.");
+//             logger.LogError(ex, "Error saving prediction log.");
+//             return StatusCode(500, "An error occurred while saving the prediction log.");
 //         }
 //     }
 // }
