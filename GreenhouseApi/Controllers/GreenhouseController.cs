@@ -2,10 +2,11 @@ using Domain.DTOs;
 using Domain.Entities;
 using Domain.Entities.Actuators;
 using Domain.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenhouseApi.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("api/greenhouse")]
 public class GreenhouseController(IGreenhouseService greenhouseService, IUserService userService)
