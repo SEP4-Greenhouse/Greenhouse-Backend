@@ -14,6 +14,8 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Swagger and API explorer
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -47,22 +49,33 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Controllers and JSON options
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    });
+builder.Services.AddControllers();
 
-// CORS
+
+// ------------------------------------------------------------
+// Add CORS ( MODIFIED: named policy for frontend access)
+// ------------------------------------------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5174") // <-- Vite dev server port
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
+
+
+// CORS
+// builder.Services.AddCors(options =>
+// {
+//     options.AddDefaultPolicy(policy =>
+//     {
+//         policy.WithOrigins("http://localhost:5173")
+//             .AllowAnyHeader()
+//             .AllowAnyMethod();
+//     });
+// });
 
 // DB Context
 var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
@@ -152,7 +165,9 @@ app.UseSwaggerUI(c =>
 app.UseGlobalExceptionHandler();
 
 // CORS
-app.UseCors();
+// app.UseCors();
+//Apply CORS policy ( MUST use the named policy here)
+app.UseCors("AllowFrontend");
 
 // Request Logging Middleware
 app.Use(async (context, next) =>
