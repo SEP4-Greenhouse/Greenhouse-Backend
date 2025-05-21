@@ -1,9 +1,8 @@
 using Domain.Entities;
 using Domain.IRepositories;
 using Domain.IServices;
-using GreenhouseService.Services;
 
-namespace AlertService.Services
+namespace GreenhouseService.Services
 {
     public class AlertService : BaseService<Alert>, IAlertService
     {

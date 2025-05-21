@@ -5,37 +5,51 @@ using Domain.IClients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-// Add logging if you want detailed error logs
-
 namespace ML_Model;
 
 public class MlHttpClient : IMlHttpClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<MlHttpClient> _logger; // Inject ILogger for logging
+    private readonly ILogger<MlHttpClient> _logger;
 
     public MlHttpClient(HttpClient httpClient, IConfiguration configuration, ILogger<MlHttpClient> logger)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(configuration["MLService:BaseUrl"]);
-        _logger = logger; // Initialize logger
+        _logger = logger;
     }
 
-    public async Task<PredictionLog?> PredictAsync(SensorReadingDto input)
+    public async Task<PredictionResultDto> PredictNextWateringTimeAsync(IEnumerable<SensorReading> sensorData)
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("/predict", input);
-            response.EnsureSuccessStatusCode(); // Ensures success status code (throws exception if not)
+            var dtoList = sensorData.Select(r => new SensorReadingDto
+            {
+                TimeStamp = r.TimeStamp,
+                Value = r.Value
+            }).ToList();
 
-            return await response.Content
-                .ReadFromJsonAsync<PredictionLog>(); // Deserialize the response into PredictionLog
+            var response = await _httpClient.PostAsJsonAsync("/predict-next-watering-time", dtoList);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadFromJsonAsync<PredictionResultDto>();
+
+            if (result == null)
+            {
+                _logger.LogError("ML service returned null prediction.");
+                throw new Exception("ML service returned null prediction.");
+            }
+
+            _logger.LogInformation("Predicted in {Time}, watering in {Hours} hours",
+                result.PredictionTime, result.HoursUntilNextWatering);
+
+            return result;
         }
         catch (HttpRequestException ex)
         {
-            // Log the exception details for better debugging
             _logger.LogError(ex, "Error communicating with ML service.");
-            throw new Exception("Error communicating with ML service.", ex);
+            throw new Exception("Failed to communicate with ML service.", ex);
         }
     }
+
 }

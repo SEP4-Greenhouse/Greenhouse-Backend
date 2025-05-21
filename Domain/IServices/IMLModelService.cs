@@ -4,6 +4,6 @@ using Domain.Entities;
 namespace Domain.IServices;
 
 public interface IMlModelService
-{
-    Task<PredictionLog?> PredictAsync(SensorReadingDto reading);
+{ 
+    Task<PredictionResultDto> PredictNextWateringTimeAsync(IEnumerable<SensorReading> data);
 }

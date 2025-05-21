@@ -6,5 +6,5 @@ namespace Domain.IClients;
 
 public interface IMlHttpClient
 {
-    Task<PredictionLog?> PredictAsync(SensorReadingDto input);
+    Task<PredictionResultDto> PredictNextWateringTimeAsync(IEnumerable<SensorReading> sensorData);
 }
