@@ -14,12 +14,12 @@ public class SensorReadingRepository(GreenhouseDbContext context, ILogger<Sensor
         {
             return await Context.SensorReadings
                 .FromSqlRaw(@"
-                    SELECT sr.*
-                    FROM (
-                        SELECT *, ROW_NUMBER() OVER(PARTITION BY ""SensorId"" ORDER BY ""TimeStamp"" DESC) as rn
-                        FROM ""SensorReadings""
-                    ) sr
-                    WHERE sr.rn = 1")
+                SELECT sr.*
+                FROM (
+                    SELECT *, ROW_NUMBER() OVER(PARTITION BY ""SensorId"" ORDER BY ""TimeStamp"" DESC) as rn
+                    FROM ""SensorReadings""
+                ) sr
+                WHERE sr.rn = 1")
                 .AsNoTracking()
                 .ToListAsync();
         }

@@ -10,7 +10,8 @@ public class ActuatorRepository(GreenhouseDbContext context)
     public async Task<IEnumerable<Actuator>> GetByGreenhouseIdAsync(int greenhouseId)
     {
         return await DbSet
-            .Where(c => c.GreenhouseId == greenhouseId)
+            .Include(a => a.Actions)
+            .Where(a => a.GreenhouseId == greenhouseId)
             .ToListAsync();
     }
 

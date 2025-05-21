@@ -1,10 +1,9 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: greenhouse-backend
     ports:
       - "5001:5001"
     env_file:
@@ -12,3 +11,20 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
+    depends_on:
+      - greenhouse-ml
+    networks:
+      - greenhouse-network
+
+  greenhouse-ml:
+    image: greenhouse-ml
+    container_name: greenhouse-ml
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - greenhouse-network
+
+networks:
+  greenhouse-network:
+    external: true
