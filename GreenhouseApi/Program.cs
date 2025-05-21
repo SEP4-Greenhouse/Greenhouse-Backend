@@ -98,6 +98,7 @@ builder.Services.AddScoped<IGreenhouseService, GreenhouseService.Services.Greenh
 builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMlModelService, MlModelService>();
 
 
 // JWT Authentication Setup
