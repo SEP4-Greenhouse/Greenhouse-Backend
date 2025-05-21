@@ -106,7 +106,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Services
 builder.Services.AddScoped<IActuatorService, ActuatorService>();
-builder.Services.AddScoped<IAlertService, AlertService.Services.AlertService>();
+builder.Services.AddScoped<IAlertService, AlertService>();
 builder.Services.AddScoped<IGreenhouseService, GreenhouseService.Services.GreenhouseService>();
 builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<IUserService, UserService>();

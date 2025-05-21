@@ -1,11 +1,7 @@
-/*
 using Microsoft.AspNetCore.Mvc;
 using Domain.DTOs;
 using Domain.Entities;
-using Domain.IRepositories;
 using Domain.IServices;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace GreenhouseApi.Controllers;
 
@@ -13,71 +9,48 @@ namespace GreenhouseApi.Controllers;
 [Route("api/ml")]
 public class MlModelController(
     IMlModelService mlModelService,
-    IPredictionLogRepository logRepo,
-    ILogger<MlModelController> logger)
+    ILogger<MlModelController> logger,
+    IGreenhouseService greenhouseService)
     : ControllerBase
 {
-    // POST /api/ml/predict
-    [HttpPost("predict")]
-    public async Task<ActionResult<PredictionResultDto>> Predict([FromBody] JObject payload)
+    [HttpPost("predict-next-watering-time/{greenhouseId:int}")]
+    public async Task<ActionResult<PredictionResultDto>> PredictNextWateringTime(
+        int greenhouseId,
+        [FromBody] IEnumerable<SensorReadingDto> input)
     {
+        var sensorReadingDtos = input.ToList();
+        if (!sensorReadingDtos.Any() || !sensorReadingDtos.Any(h => h.Value > 0))
+        {
+            logger.LogWarning("Invalid sensor data received for prediction.");
+            return BadRequest("Valid historical sensor data are required.");
+        }
+
         try
         {
-            // Deserialize each component manually
-            var sensor = payload["sensor"]?.ToObject<SensorDto>();
-            var current = payload["current"]?.ToObject<SensorReadingDto>();
-            var history = payload["history"]?.ToObject<List<SensorReadingDto>>();
+            var sensors = await greenhouseService.GetSensorsByGreenhouseIdAsync(greenhouseId);
 
-            // Validate presence of all components
-            if (sensor == null || current == null || history == null || !history.Any())
-            {
-                logger.LogWarning("Invalid sensor data received for prediction.");
-                return BadRequest("Sensor, current, and history data are required.");
-            }
+            var sensor = sensors.FirstOrDefault();
+            if (sensor == null)
+                return BadRequest("No sensors found to associate with readings.");
 
-            // Manually construct a temporary object or anonymous structure
-            var result = await mlModelService.PredictAsync(new
-            {
-                Sensor = sensor,
-                Current = current,
-                History = history
-            });
+            var sensorReadings = sensorReadingDtos.Select(dto =>
+                new SensorReading(dto.TimeStamp, dto.Value, sensor.Unit, sensor)
+            );
 
-            if (result == null)
-            {
-                logger.LogWarning("Prediction result is null.");
-                return StatusCode(500, "Prediction service returned no result.");
-            }
+            var result = await mlModelService.PredictNextWateringTimeAsync(sensorReadings);
 
+            logger.LogInformation("Prediction successful. Result: {@result}", result);
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
-            logger.LogError(ex, "Unexpected error occurred while processing the prediction.");
-            return StatusCode(500, "An error occurred while processing the prediction.");
-        }
-    }
-
-    // POST /api/ml/logs
-    [HttpPost("logs")]
-    public async Task<IActionResult> LogPrediction([FromBody] PredictionLog log)
-    {
-        if (log == null)
-        {
-            logger.LogWarning("Null log received.");
-            return BadRequest("Log data is required.");
-        }
-
-        try
-        {
-            await logRepo.AddAsync(log);
-            return Ok("Prediction log saved successfully.");
+            logger.LogError(ex, "Validation error during prediction.");
+            return BadRequest(Problem(ex.Message));
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error saving prediction log.");
-            return StatusCode(500, "An error occurred while saving the prediction log.");
+            logger.LogError(ex, "Unexpected error during prediction.");
+            return StatusCode(500, Problem("An unexpected error occurred while processing the prediction."));
         }
     }
 }
-*/
