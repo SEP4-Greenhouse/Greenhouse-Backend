@@ -1,3 +1,4 @@
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -14,20 +15,35 @@ public class AlertsController(IAlertService alertService) : ControllerBase
     public async Task<IActionResult> GetAlertsByType(Alert.AlertType type)
     {
         var alerts = await alertService.GetAlertsByTypeAsync(type);
-        return Ok(alerts);
+        var dto = alerts.Select(a => new AlertDto(a.Message)
+        {
+            Type = a.Type.ToString(),
+            Timestamp = a.Timestamp
+        });
+        return Ok(dto);
     }
 
     [HttpGet("range")]
     public async Task<IActionResult> GetAlertsByDateRange([FromQuery] DateTime start, [FromQuery] DateTime end)
     {
         var alerts = await alertService.GetAlertsByDateRangeAsync(start, end);
-        return Ok(alerts);
+        var dto = alerts.Select(a => new AlertDto(a.Message)
+        {
+            Type = a.Type.ToString(),
+            Timestamp = a.Timestamp
+        });
+        return Ok(dto);
     }
+
     [HttpGet("all")]
     public async Task<IActionResult> GetAllAlerts()
     {
         var alerts = await alertService.GetAllAlertsAsync();
-        return Ok(alerts);
+        var dto = alerts.Select(a => new AlertDto(a.Message)
+        {
+            Type = a.Type.ToString(),
+            Timestamp = a.Timestamp
+        });
+        return Ok(dto);
     }
-    
 }
