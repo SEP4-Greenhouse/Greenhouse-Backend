@@ -15,28 +15,7 @@ public class UserService(IUserRepository userRepository) : IUserService
         var user = await userRepository.GetByIdAsync(id);
         return user == null ? null : new UserDto(user.Id, user.Name, user.Email);
     }
-
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
-    {
-        var users = await userRepository.GetAllAsync();
-        return users.Select(user => new UserDto(user.Id, user.Name, user.Email));
-    }
-
-    public async Task<UserDto> AddUserAsync(UserDto userDto, string password)
-    {
-        if (string.IsNullOrWhiteSpace(password))
-            throw new ArgumentException("Password cannot be empty.");
-
-        if (await userRepository.ExistsByEmailAsync(userDto.Email))
-            throw new InvalidOperationException("A user with the same email already exists.");
-
-        var hashedPassword = HashPassword(password);
-
-        var user = new User(userDto.Name, userDto.Email, hashedPassword);
-        var createdUser = await userRepository.AddAsync(user);
-
-        return new UserDto(createdUser.Id, createdUser.Name, createdUser.Email);
-    }
+    
 
     public async Task DeleteUserAsync(int id)
     {
@@ -61,8 +40,8 @@ public class UserService(IUserRepository userRepository) : IUserService
         if (user == null)
             throw new KeyNotFoundException("User not found.");
 
-        var hashedPassword = HashPassword(newPassword);
-        user.ChangePassword(hashedPassword);
+        var hashedPassword = HashPasswordAsync(newPassword);
+        user.ChangePassword(hashedPassword.ToString());
         await userRepository.UpdateAsync(user);
     }
 
@@ -81,8 +60,6 @@ public class UserService(IUserRepository userRepository) : IUserService
         await userRepository.UpdateAsync(user);
     }
 
-    private string HashPassword(string password)
-    {
-        return BCrypt.Net.BCrypt.HashPassword(password);
-    }
+    private static async Task<string> HashPasswordAsync(string pwd) =>
+        await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(pwd));
 }

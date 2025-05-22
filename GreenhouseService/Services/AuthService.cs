@@ -62,7 +62,7 @@ public class AuthService(IConfiguration config, IUserRepository userRepo) : IAut
         return new UserDto(createdUser.Id, createdUser.Name, createdUser.Email);
     }
 
-    public bool VerifyPassword(string plainPassword, string hashedPassword)
+    public bool VerifyPassword(string plainPassword, string? hashedPassword)
     {
         return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);
     }

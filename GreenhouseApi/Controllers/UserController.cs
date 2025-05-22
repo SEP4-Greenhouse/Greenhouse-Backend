@@ -48,7 +48,7 @@ public class UserController(IUserService userService) : ControllerBase
     }
 
     [HttpPut("password")]
-    public async Task<IActionResult> UpdateUserPassword([FromBody] string newPassword)
+    public async Task<IActionResult> UpdatePassword([FromBody] string newPassword)
     {
         var userId = GetUserIdFromClaims();
         if (userId == null) return Unauthorized();
