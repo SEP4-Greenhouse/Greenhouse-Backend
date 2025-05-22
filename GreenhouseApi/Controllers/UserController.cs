@@ -33,15 +33,8 @@ public class UserController(IUserService userService) : ControllerBase
         var userId = GetUserIdFromClaims();
         if (userId == null) return Unauthorized();
 
-        try
-        {
-            await userService.DeleteUserAsync(userId.Value);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await userService.DeleteUserAsync(userId.Value);
+        return NoContent();
     }
 
     [HttpPut("name")]
@@ -50,19 +43,8 @@ public class UserController(IUserService userService) : ControllerBase
         var userId = GetUserIdFromClaims();
         if (userId == null) return Unauthorized();
 
-        try
-        {
-            await userService.UpdateNameAsync(userId.Value, newName);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await userService.UpdateNameAsync(userId.Value, newName);
+        return NoContent();
     }
 
     [HttpPut("password")]
@@ -71,25 +53,14 @@ public class UserController(IUserService userService) : ControllerBase
         var userId = GetUserIdFromClaims();
         if (userId == null) return Unauthorized();
 
-        try
-        {
-            await userService.UpdatePasswordAsync(userId.Value, newPassword);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await userService.UpdatePasswordAsync(userId.Value, newPassword);
+        return NoContent();
     }
 
     private int? GetUserIdFromClaims()
     {
         var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         if (userIdClaim == null) return null;
-        return int.TryParse(userIdClaim.Value, out var userId) ? userId : (int?)null;
+        return int.TryParse(userIdClaim.Value, out var userId) ? userId : null;
     }
 }

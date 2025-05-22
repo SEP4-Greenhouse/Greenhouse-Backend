@@ -6,15 +6,14 @@ using Domain.IServices;
 namespace GreenhouseService.Services;
 
 public class ActuatorService(
-    IActuatorRepository actuatorRepository,
-    IActuatorActionRepository actionRepository)
+    IActuatorRepository actuatorRepository)
     : BaseService<Actuator>(actuatorRepository), IActuatorService
 {
     public async Task<ActuatorAction> TriggerActuatorActionAsync(int actuatorId, string actionType, double value)
     {
         var actuator = await GetByIdAsync(actuatorId);
-        var action = actuator.InitiateAction(DateTime.UtcNow, actionType, value);
-        await UpdateAsync(actuator);
-        return action;
+        var action = actuator?.InitiateAction(DateTime.UtcNow, actionType, value);
+        await UpdateAsync(actuator ?? throw new InvalidOperationException());
+        return action ?? throw new InvalidOperationException();
     }
 }

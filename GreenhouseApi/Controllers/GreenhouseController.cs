@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenhouseApi.Controllers;
+
 [Authorize]
 [ApiController]
 [Route("api/greenhouse")]
 public class GreenhouseController(IGreenhouseService greenhouseService, IUserService userService)
     : ControllerBase
 {
-    // GREENHOUSE ENDPOINTS
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetGreenhousesByUserId(int userId)
     {
@@ -51,12 +51,10 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         return Ok("Greenhouse name updated successfully.");
     }
 
-    [HttpPut("{id}/planttype")]
+    [HttpPut("{id}/plantType")]
     public async Task<IActionResult> UpdateGreenhousePlantType(int id, [FromBody] string newPlantType)
     {
         var greenhouse = await greenhouseService.GetByIdAsync(id);
-        if (greenhouse == null)
-            return NotFound($"Greenhouse with ID {id} not found");
 
         greenhouse.UpdatePlantType(newPlantType);
         await greenhouseService.UpdateAsync(greenhouse);
@@ -103,7 +101,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         return Ok("Plant added to greenhouse successfully.");
     }
 
-    [HttpPut("{greenhouseId}/plants/{plantId}/growthstage")]
+    [HttpPut("{greenhouseId}/plants/{plantId}/growthStage")]
     public async Task<IActionResult> UpdatePlantGrowthStage(int greenhouseId, int plantId,
         [FromBody] string newGrowthStage)
     {
@@ -195,7 +193,7 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
         {
             a.Id,
             Type = a.GetType().Name.Replace("Actuator", ""),
-            Status = a.Status
+            a.Status
         }).ToList();
 
         return Ok(simplifiedActuators);
@@ -208,8 +206,8 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
 
         Actuator actuator = actuatorDto.Type.ToLower() switch
         {
-            "waterpump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
-            "servomotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
+            "waterPump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
+            "servoMotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
             _ => throw new ArgumentException($"Unsupported actuator type: {actuatorDto.Type}")
         };
 

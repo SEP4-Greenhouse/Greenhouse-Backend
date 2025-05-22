@@ -6,19 +6,12 @@ namespace GreenhouseApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto loginRequest)
     {
-        var response = await _authService.LoginAsync(loginRequest);
+        var response = await authService.LoginAsync(loginRequest);
         if (response == null)
             return Unauthorized();
 
@@ -34,24 +27,14 @@ public class AuthController : ControllerBase
         {
             return BadRequest("Name, email, and password are required.");
         }
-        try
-        {
-            var user = await _authService.RegisterAsync(createUserDto);
-            return CreatedAtAction(nameof(Register), user);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        var user = await authService.RegisterAsync(createUserDto);
+        return CreatedAtAction(nameof(Register), user);
     }
+
     [HttpGet("health")]
     public IActionResult HealthCheck()
     {
         return Ok("Backend is alive");
     }
-
 }
