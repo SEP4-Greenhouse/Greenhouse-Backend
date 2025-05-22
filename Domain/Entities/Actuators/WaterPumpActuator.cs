@@ -1,3 +1,5 @@
+using Domain.Entities.Actuators;
+
 namespace Domain.Entities;
 
 public class WaterPumpActuator : Actuator
