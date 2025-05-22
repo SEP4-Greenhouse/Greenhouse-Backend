@@ -95,11 +95,11 @@ public class SensorService(
         return await thresholdRepository.UpdateThresholdAsync(existingThreshold);
     }
 
-    public async Task<bool> DeleteThresholdAsync(int sendorId)
+    public async Task<bool> DeleteThresholdAsync(int sensorId)
     {
-        var threshold = await thresholdRepository.GetThresholdBySensorIdAsync(sendorId);
+        var threshold = await thresholdRepository.GetThresholdBySensorIdAsync(sensorId);
         if (threshold == null)
-            throw new ArgumentException($"Threshold for sensor {sendorId} not found.");
+            throw new ArgumentException($"Threshold for sensor {sensorId} not found.");
 
         return await thresholdRepository.DeleteThresholdAsync(threshold.Id);
     }

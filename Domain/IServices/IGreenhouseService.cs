@@ -5,13 +5,11 @@ namespace Domain.IServices;
 
 public interface IGreenhouseService : IBaseService<Greenhouse>
 {
-    // Relationship queries 
     Task<IEnumerable<Greenhouse>> GetGreenhousesByUserIdAsync(int userId);
     Task<IEnumerable<Sensor>> GetSensorsByGreenhouseIdAsync(int greenhouseId);
     Task<IEnumerable<Actuator>> GetActuatorsByGreenhouseIdAsync(int greenhouseId);
     Task<IEnumerable<Plant>> GetPlantsByGreenhouseIdAsync(int greenhouseId);
     
-    // Relationship management
     Task<Plant> AddPlantToGreenhouseAsync(int greenhouseId, Plant plant);
     Task DeletePlantFromGreenhouseAsync(int greenhouseId, int plantId);
     

@@ -1,3 +1,5 @@
+namespace Domain.IServices;
+
 public interface IBaseService<T> where T : class
 {
     Task<T> GetByIdAsync(int id);

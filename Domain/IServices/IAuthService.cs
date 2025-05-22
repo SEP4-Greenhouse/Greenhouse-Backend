@@ -1,11 +1,8 @@
-using Domain.DTOs;
-using Domain.Entities;
-
 namespace Domain.IServices;
 
 using System.Threading.Tasks;
-using Domain.DTOs;
-using Domain.Entities;
+using DTOs;
+using Entities;
 
 public interface IAuthService
 {

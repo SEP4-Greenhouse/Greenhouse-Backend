@@ -8,5 +8,4 @@ public interface IMlModelService
     Task<PredictionResultDto> PredictNextWateringTimeAsync(MlModelDataDto preparedData, int plantId);
     Task PrepareDataForPredictionAsync(MlModelDataDto data, int plantId);
     Task<IEnumerable<PredictionLog>> GetAllPredictionLogsAsync();
-    Task<PredictionLog> AddPredictionLogAsync(PredictionLog log);
 }

@@ -5,10 +5,8 @@ namespace Domain.IServices
 {
     public interface ISensorService : IBaseService<Sensor>
     {
-        // SensorReading CRUD operations
         Task AddSensorReadingAsync(SensorReading reading);
         
-        // SensorReading query methods
         Task<IEnumerable<SensorReading>> GetLatestReadingFromAllSensorsAsync();
         Task<IDictionary<int, IEnumerable<SensorReading>>> GetReadingsBySensorAsync();
         Task<IEnumerable<SensorReading>> GetReadingsByTimestampRangeAsync(DateTime start, DateTime end);
@@ -18,6 +16,6 @@ namespace Domain.IServices
         Task<Threshold?> GetThresholdBySensorIdAsync(int sensorId);
         Task<Threshold> AddThresholdToSensorAsync(int sensorId, ThresholdDto thresholdDto);
         Task<Threshold> UpdateThresholdAsync(Threshold threshold);
-        Task<bool> DeleteThresholdAsync(int sendorId);
+        Task<bool> DeleteThresholdAsync(int sensorId);
     }
 }
