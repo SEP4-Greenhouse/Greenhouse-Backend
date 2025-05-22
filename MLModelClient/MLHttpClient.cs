@@ -12,13 +12,13 @@ public class MlHttpClient : IMlHttpClient
     public MlHttpClient(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(configuration["MLService:BaseUrl"]);
+        _httpClient.BaseAddress = new Uri(configuration["MLService:BaseUrl"] ?? throw new InvalidOperationException());
     }
 
     public async Task<PredictionResultDto> PredictNextWateringTimeAsync(MlModelDataDto preparedData)
     {
-        var Json = System.Text.Json.JsonSerializer.Serialize(preparedData);
-        Console.WriteLine(Json);
+        var json = System.Text.Json.JsonSerializer.Serialize(preparedData);
+        Console.WriteLine(json);
         var response = await _httpClient.PostAsJsonAsync("api/ml/predict", preparedData);
         response.EnsureSuccessStatusCode();
 
