@@ -7,16 +7,10 @@ services:
       dockerfile: Dockerfile
     container_name: greenhouse-backend
     ports:
-      - "5001:5001"
+      - "5001"
     env_file:
       - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ML_API_URL=https://greenhousemlapp.azurewebsites.net 
     restart: unless-stopped
-    networks:
-      - greenhouse-network
-
-networks:
-  greenhouse-network:
-    external: true

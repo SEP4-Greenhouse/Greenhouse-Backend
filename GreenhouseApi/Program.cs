@@ -90,7 +90,7 @@ builder.Services.AddDbContext<GreenhouseDbContext>(options =>
 // HTTP Client
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {
-    client.BaseAddress = new Uri("http://host.docker.internal:8000");
+    client.BaseAddress = new Uri("https://greenhousemlapp.azurewebsites.net");
 });
 
 // Repositories
@@ -186,4 +186,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.Run("http://0.0.0.0:5001");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5001";
+app.Run($"http://0.0.0.0:{port}");
