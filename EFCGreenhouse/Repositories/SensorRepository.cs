@@ -8,7 +8,7 @@ public class SensorRepository(GreenhouseDbContext context) : BaseRepository<Sens
 {
     public async Task<IEnumerable<Sensor>> GetByGreenhouseIdAsync(int greenhouseId)
     {
-        return await context.Sensors
+        return await Context.Sensors
             .Where(s => s.GreenhouseId == greenhouseId)
             .ToListAsync();
     }

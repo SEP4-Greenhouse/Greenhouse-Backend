@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Domain.IRepositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace EFCGreenhouse.Repositories;
 

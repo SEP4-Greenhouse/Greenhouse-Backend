@@ -16,10 +16,10 @@ public class ActuatorRepository(GreenhouseDbContext context)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<ActuatorAction>> GetActionsByActuatorIdAsync(int ActuatorId)
+    public async Task<IEnumerable<ActuatorAction>> GetActionsByActuatorIdAsync(int actuatorId)
     {
         return await Context.ActuatorActions
-            .Where(a => a.ActuatorId == ActuatorId)
+            .Where(a => a.ActuatorId == actuatorId)
             .ToListAsync();
     }
 }
