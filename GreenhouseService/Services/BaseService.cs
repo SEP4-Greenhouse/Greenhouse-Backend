@@ -9,7 +9,7 @@ public class BaseService<T>(IBaseRepository<T> repository) : IBaseService<T> whe
 
     public async Task<IEnumerable<T>> GetAllAsync() => await _repository.GetAllAsync();
 
-    public async Task<T?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+    public async Task<T> GetByIdAsync(int id) => await _repository.GetByIdAsync(id) ?? throw new InvalidOperationException();
 
     public async Task<T> AddAsync(T entity) => await _repository.AddAsync(entity);
 

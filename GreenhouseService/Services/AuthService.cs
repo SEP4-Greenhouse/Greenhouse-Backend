@@ -10,20 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace GreenhouseService.Services;
 
-public class AuthService : IAuthService
+public class AuthService(IConfiguration config, IUserRepository userRepo) : IAuthService
 {
-    private readonly IConfiguration _config;
-    private readonly IUserRepository _userRepo;
-
-    public AuthService(IConfiguration config, IUserRepository userRepo)
-    {
-        _config = config;
-        _userRepo = userRepo;
-    }
-
     public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto loginRequest)
     {
-        var user = await _userRepo.GetByEmailAsync(loginRequest.Email);
+        var user = await userRepo.GetByEmailAsync(loginRequest.Email);
 
         if (user == null || !VerifyPassword(loginRequest.Password, user.HashedPassword))
             return null;
@@ -33,7 +24,7 @@ public class AuthService : IAuthService
         return new LoginResponseDto
         {
             Token = token,
-            Expiry = DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"]!))
+            Expiry = DateTime.UtcNow.AddMinutes(double.Parse(config["Jwt:ExpiresInMinutes"]!))
         };
     }
 
@@ -46,29 +37,28 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: config["Jwt:Issuer"],
+            audience: config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"]!)),
+            expires: DateTime.UtcNow.AddMinutes(double.Parse(config["Jwt:ExpiresInMinutes"]!)),
             signingCredentials: creds
         );
-
         return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
     }
 
     public async Task<UserDto> RegisterAsync(CreateUserDto createUserDto)
     {
-        if (await _userRepo.ExistsByEmailAsync(createUserDto.Email))
+        if (await userRepo.ExistsByEmailAsync(createUserDto.Email))
             throw new InvalidOperationException("User with this email already exists.");
 
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
         var user = new User(createUserDto.Name, createUserDto.Email, hashedPassword);
 
-        var createdUser = await _userRepo.AddAsync(user);
+        var createdUser = await userRepo.AddAsync(user);
         return new UserDto(createdUser.Id, createdUser.Name, createdUser.Email);
     }
 

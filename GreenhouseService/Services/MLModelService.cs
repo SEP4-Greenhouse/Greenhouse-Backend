@@ -59,7 +59,7 @@ public class MlModelService(
             ? (DateTime.UtcNow - lastWateringAction.Timestamp).TotalHours
             : -1;
 
-        var mlSensorReadings = sensorReadings.Select(r =>
+        List<MlSensorReadingDto?> mlSensorReadings = sensorReadings.Select(r =>
         {
             var sensor = sensors.FirstOrDefault(s => s.Id == r.SensorId);
             return sensor == null

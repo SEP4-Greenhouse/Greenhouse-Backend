@@ -43,8 +43,8 @@ namespace GreenhouseService.Services
 
         public async Task DeletePlantFromGreenhouseAsync(int greenhouseId, int plantId)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var plant = await plantRepository.GetByIdAsync(plantId);
             if (plant == null || plant.GreenhouseId != greenhouseId)
@@ -64,8 +64,8 @@ namespace GreenhouseService.Services
 
         public async Task DeleteSensorFromGreenhouseAsync(int greenhouseId, int sensorId)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var sensor = await sensorRepository.GetByIdAsync(sensorId);
             if (sensor == null || sensor.GreenhouseId != greenhouseId)
@@ -86,8 +86,8 @@ namespace GreenhouseService.Services
 
         public async Task DeleteActuatorFromGreenhouseAsync(int greenhouseId, int actuatorId)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var actuator = await actuatorRepository.GetByIdAsync(actuatorId);
             if (actuator == null || actuator.GreenhouseId != greenhouseId)
@@ -98,8 +98,8 @@ namespace GreenhouseService.Services
 
         public async Task UpdateSensorInGreenhouseAsync(int greenhouseId, int sensorId, Sensor updatedSensor)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var existingSensor = await sensorRepository.GetByIdAsync(sensorId);
             if (existingSensor == null || existingSensor.GreenhouseId != greenhouseId)
@@ -111,8 +111,8 @@ namespace GreenhouseService.Services
 
         public async Task UpdateActuatorInGreenhouseAsync(int greenhouseId, int actuatorId, Actuator updatedActuator)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var existingActuator = await actuatorRepository.GetByIdAsync(actuatorId);
             if (existingActuator == null || existingActuator.GreenhouseId != greenhouseId)
@@ -124,8 +124,8 @@ namespace GreenhouseService.Services
 
         public async Task UpdatePlantInGreenhouseAsync(int greenhouseId, int plantId, Plant updatedPlant)
         {
-            var greenhouse = await GetByIdAsync(greenhouseId)
-                             ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
+            _ = await GetByIdAsync(greenhouseId)
+                ?? throw new KeyNotFoundException($"Greenhouse with ID {greenhouseId} not found");
 
             var existingPlant = await plantRepository.GetByIdAsync(plantId);
             if (existingPlant == null || existingPlant.GreenhouseId != greenhouseId)
