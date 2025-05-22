@@ -7,10 +7,7 @@ public class Alert
     public enum AlertType
     {
         Sensor,
-        Controller,
-        Manual,
-        System,
-        Unknown
+        Actuator,
     }
 
     [Key] public int Id { get; private set; }
@@ -56,7 +53,7 @@ public class Alert
         _triggeringSensorReadings.Add(reading);
     }
 
-    public void AddTriggeringAction(ActuatorAction action)
+    public void AddTriggeringActuatorAction(ActuatorAction action)
     {
         if (action == null)
             throw new ArgumentNullException(nameof(action));
