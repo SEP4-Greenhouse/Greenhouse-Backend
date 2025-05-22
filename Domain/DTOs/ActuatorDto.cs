@@ -1,9 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Domain.DTOs;
 
-public class ActuatorDto
+public class ActuatorDto(string type, string status)
 {
-    public string Type { get; set; }
-    public string Status { get; set; }
+    public string Type { get; set; } = type;
+    public string Status { get; set; } = status;
 }

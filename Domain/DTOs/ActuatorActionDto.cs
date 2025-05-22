@@ -1,10 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Domain.DTOs;
 
-public class ActuatorActionDto
+public class ActuatorActionDto(double value, string action)
 {
+    [Required]
     public DateTime Timestamp { get; set; }
 
-    public string Action { get; set; }
+    [Required]
+    public string Action { get; set; } = action;
 
-    public double Value { get; set; }
+    [Required]
+    public double Value { get; set; } = value;
 }

@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-
-namespace Domain.DTOs;
+﻿namespace Domain.DTOs;
 
 public class SensorReadingDto
 {

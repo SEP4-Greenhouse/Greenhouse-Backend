@@ -1,10 +1,10 @@
 namespace Domain.DTOs;
 
-public class PlantDto
+public class PlantDto(string species, DateTime plantingDate, string growthStage)
 {
-    public string Species { get; set; }
-    
-    public DateTime PlantingDate { get; set; }
-    
-    public string GrowthStage { get; set; }
+    public string Species { get; set; } = species;
+
+    public DateTime PlantingDate { get; set; } = plantingDate;
+
+    public string GrowthStage { get; set; } = growthStage;
 }

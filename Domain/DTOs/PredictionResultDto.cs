@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace Domain.DTOs;
 
-namespace Domain.DTOs;
-
-public class PredictionResultDto
+public abstract class PredictionResultDto
 {
     public DateTime PredictionTime { get; set; }
     public double HoursUntilNextWatering { get; set; }
