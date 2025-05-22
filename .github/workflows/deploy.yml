@@ -43,6 +43,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: greenhousesep4
-          slot-name: production
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_273e2a071dac42738f0c261381cc2a44 }}
           images: greenhousesep4.azurecr.io/greenhouse-backend:${{ github.sha }}
