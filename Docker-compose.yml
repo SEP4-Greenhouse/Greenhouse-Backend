@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   backend:
     build:
@@ -9,18 +11,8 @@ services:
     env_file:
       - .env
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    restart: unless-stopped
-    depends_on:
-      - greenhouse-ml
-    networks:
-      - greenhouse-network
-
-  greenhouse-ml:
-    image: greenhouse-ml
-    container_name: greenhouse-ml
-    ports:
-      - "8000:8000"
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ML_API_URL=https://greenhousemlapp.azurewebsites.net 
     restart: unless-stopped
     networks:
       - greenhouse-network
