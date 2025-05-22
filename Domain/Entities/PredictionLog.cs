@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities;
 
@@ -6,15 +7,12 @@ public class PredictionLog
 {
     [Key] public int Id { get; set; }
 
-    [Required] public DateTime Timestamp { get; set; }
+    [Required] public DateTime PredictionTime { get; set; }
 
-    [Required] [MaxLength(50)] public string SensorType { get; set; } = null!;
+    [Required] public double HoursUntilNextWatering { get; set; }
 
-    [Required] public float Value { get; set; }
-
-    [Required] [MaxLength(100)] public string Status { get; set; } = null!;
-
-    [Required] public string Suggestion { get; set; } = null!;
-
-    public string? TrendAnalysis { get; set; }  // ✅ optional
+    [Required]
+    [ForeignKey("Plant")]
+    public int PlantId { get; set; }
+    public Plant Plant { get; set; } = null!;
 }

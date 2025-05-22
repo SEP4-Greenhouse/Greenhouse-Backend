@@ -11,7 +11,14 @@ public class PredictionLogRepository(GreenhouseDbContext context)
     {
         return await DbSet
             .AsNoTracking()
-            .OrderByDescending(p => p.Timestamp)
+            .OrderByDescending(p => p.PredictionTime)
             .ToListAsync();
+    }
+
+    public async Task<PredictionLog> AddAsync(PredictionLog log)
+    {
+        await DbSet.AddAsync(log);
+        await Context.SaveChangesAsync();
+        return log;
     }
 }

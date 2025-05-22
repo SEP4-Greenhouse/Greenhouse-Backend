@@ -6,8 +6,7 @@ namespace Domain.Entities;
 public class Sensor
 {
     [Key]
-     // Disable auto-generation of IDs
-    public int Id { get; set; } // Made publicly settable to allow custom ID assignment
+    public int Id { get; set; }
 
     [Required] [MaxLength(100)] public string Type { get; private set; }
 
@@ -31,7 +30,7 @@ public class Sensor
 
     private Sensor()
     {
-    } // Required by EF Core
+    }
 
     public void UpdateStatus(string newStatus)
     {

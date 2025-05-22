@@ -9,12 +9,22 @@ namespace GreenhouseService.Services;
 public class MlModelService(
     IMlHttpClient mlClient,
     ISensorReadingRepository sensorReadingRepo,
-    IPlantRepository plantRepository)
+    IPlantRepository plantRepository,
+    IPredictionLogRepository predictionLogRepository)
     : IMlModelService
 {
-    public async Task<PredictionResultDto> PredictNextWateringTimeAsync(MlModelDataDto preparedData)
+    public async Task<PredictionResultDto> PredictNextWateringTimeAsync(MlModelDataDto preparedData, int plantId)
     {
         var prediction = await mlClient.PredictNextWateringTimeAsync(preparedData);
+
+        var log = new PredictionLog
+        {
+            PlantId = plantId,
+            PredictionTime = prediction.PredictionTime,
+            HoursUntilNextWatering = prediction.HoursUntilNextWatering
+        };
+        await AddPredictionLogAsync(log);
+
         return prediction;
     }
 
@@ -24,7 +34,7 @@ public class MlModelService(
         if (plant == null) throw new Exception("Plant not found");
 
         var greenhouse = plant.Greenhouse;
-        var sensors = greenhouse.Sensors ?? new List<Sensor>();
+        var sensors = greenhouse.Sensors;
         var sensorIds = sensors.Select(s => s.Id).ToList();
 
         var allLatestReadings = await sensorReadingRepo.GetLatestFromAllSensorsAsync();
@@ -32,12 +42,11 @@ public class MlModelService(
             .Where(r => sensorIds.Contains(r.SensorId))
             .ToList();
 
-        var actuators = greenhouse.Actuators ?? new List<Actuator>();
-        // Find the water pump actuator (by type)
+        var actuators = greenhouse.Actuators;
         var waterPump = actuators.FirstOrDefault(a => a is WaterPumpActuator);
 
         ActuatorAction? lastWateringAction = null;
-        if (waterPump?.Actions?.Any() == true)
+        if (waterPump?.Actions.Any() == true)
         {
             var wateringActions = new[] { "TurnOn", "SetFlowRate", "Turned On", "Watering On", "water on" };
             lastWateringAction = waterPump.Actions
@@ -66,17 +75,18 @@ public class MlModelService(
         data.Timestamp = DateTime.UtcNow;
         data.PlantGrowthStage = plant.GrowthStage;
         data.TimeSinceLastWateringInHours = timeSinceLastWateringHours;
-        Console.WriteLine($"Sensors in greenhouse: {string.Join(", ", sensors.Select(s => s.Id))}");
-        Console.WriteLine(
-            $"All latest readings: {string.Join(", ", allLatestReadings.Select(r => $"{r.SensorId}:{r.Value}"))}");
-        Console.WriteLine(
-            $"Filtered readings: {string.Join(", ", sensorReadings.Select(r => $"{r.SensorId}:{r.Value}"))}");
         data.MlSensorReadings = mlSensorReadings;
     }
-}
 
-public static class ActuatorActions
-{
-    public const string TurnOn = "TurnOn";
-    public const string SetFlowRate = "SetFlowRate";
+    public async Task<IEnumerable<PredictionLog>> GetAllPredictionLogsAsync()
+    {
+        return await predictionLogRepository.GetAllAsync();
+    }
+
+    public async Task<PredictionLog> AddPredictionLogAsync(PredictionLog log)
+    {
+        if (log == null)
+            throw new ArgumentNullException(nameof(log), "Prediction log cannot be null.");
+        return await predictionLogRepository.AddAsync(log);
+    }
 }

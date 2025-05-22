@@ -17,6 +17,8 @@ public class GreenhouseDbContext : DbContext
     public DbSet<Actuator> Actuators => Set<Actuator>();
     public DbSet<ActuatorAction> ActuatorActions => Set<ActuatorAction>();
     public DbSet<Alert> Alerts => Set<Alert>();
+    public DbSet<Threshold> Thresholds => Set<Threshold>();
+    public DbSet<PredictionLog> PredictionLogs => Set<PredictionLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

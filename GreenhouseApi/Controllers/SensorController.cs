@@ -49,11 +49,11 @@ public class SensorController(ISensorService sensorService) : ControllerBase
     
         var simplifiedReadings = readings.Select(r => new
         {
-            Id = r.Id,
-            TimeStamp = r.TimeStamp,
-            Value = r.Value,
-            Unit = r.Unit,
-            SensorId = r.SensorId
+            r.Id,
+            r.TimeStamp,
+            r.Value,
+            r.Unit,
+            r.SensorId
         }).ToList();
     
         return Ok(simplifiedReadings);
@@ -68,10 +68,10 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             kvp => kvp.Key,
             kvp => kvp.Value.Select(r => new
             {
-                Id = r.Id,
-                TimeStamp = r.TimeStamp,
-                Value = r.Value,
-                Unit = r.Unit
+                r.Id,
+                r.TimeStamp,
+                r.Value,
+                r.Unit
             }).ToList()
         );
     
@@ -87,10 +87,10 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             kvp => kvp.Key,
             kvp => new
             {
-                Id = kvp.Value.Id,
-                TimeStamp = kvp.Value.TimeStamp,
-                Value = kvp.Value.Value,
-                Unit = kvp.Value.Unit
+                kvp.Value.Id,
+                kvp.Value.TimeStamp,
+                kvp.Value.Value,
+                kvp.Value.Unit
             }
         );
     
@@ -108,11 +108,11 @@ public class SensorController(ISensorService sensorService) : ControllerBase
     
         var simplifiedReadings = readings.Select(r => new
         {
-            Id = r.Id,
-            TimeStamp = r.TimeStamp,
-            Value = r.Value,
-            Unit = r.Unit,
-            SensorId = r.SensorId
+            r.Id,
+            r.TimeStamp,
+            r.Value,
+            r.Unit,
+            r.SensorId
         }).ToList();
     
         return Ok(simplifiedReadings);
@@ -126,10 +126,10 @@ public class SensorController(ISensorService sensorService) : ControllerBase
     
         var simplifiedReadings = readings.Select(r => new
         {
-            Id = r.Id,
-            TimeStamp = r.TimeStamp,
-            Value = r.Value,
-            Unit = r.Unit
+            r.Id,
+            r.TimeStamp,
+            r.Value,
+            r.Unit
         }).ToList();
     
         return Ok(simplifiedReadings);
@@ -147,15 +147,103 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             var avg = await sensorService.GetAverageReadingForSensorAsync(sensorId, startUtc, endUtc);
             
             var sensor = await sensorService.GetByIdAsync(sensorId);
-            if (sensor == null)
-                return NotFound($"Sensor with ID {sensorId} not found");
 
             return Ok(new {
                 Average = avg,
-                Unit = sensor.Unit,
+                sensor.Unit,
                 SensorId = sensorId,
                 TimeRange = new { Start = start, End = end }
             });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    [HttpPost("sensor/{sensorId}/threshold")]
+    public async Task<IActionResult> AddThresholdToSensor(int sensorId, [FromBody] ThresholdDto thresholdDto)
+    {
+        try
+        {
+            var threshold = await sensorService.AddThresholdToSensorAsync(sensorId, thresholdDto);
+            return Ok(new
+            {
+                threshold.Id,
+                threshold.SensorId,
+                threshold.MinValue,
+                threshold.MaxValue
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("sensor/{sensorId}/threshold")]
+    public async Task<IActionResult> GetThresholdFromSensor(int sensorId)
+    {
+        try
+        {
+            var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
+            if (threshold == null)
+                return NotFound($"Threshold for sensor {sensorId} not found.");
+
+            return Ok(new
+            {
+                threshold.Id,
+                threshold.SensorId,
+                threshold.MinValue,
+                threshold.MaxValue
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpPut("sensor/{sensorId}/threshold")]
+    public async Task<IActionResult> UpdateThreshold(int sensorId, [FromBody] ThresholdDto thresholdDto)
+    {
+        try
+        {
+            var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
+            if (threshold == null)
+                return NotFound($"Threshold for sensor {sensorId} not found.");
+    
+            threshold.MinValue = thresholdDto.MinValue;
+            threshold.MaxValue = thresholdDto.MaxValue;
+    
+            var updatedThreshold = await sensorService.UpdateThresholdAsync(threshold);
+    
+            return Ok(new
+            {
+                updatedThreshold.Id,
+                updatedThreshold.SensorId,
+                updatedThreshold.MinValue,
+                updatedThreshold.MaxValue
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    [HttpDelete("sensor/{sensorId}/threshold")]
+    public async Task<IActionResult> DeleteThreshold(int sensorId)
+    {
+        try
+        {
+            var deleted = await sensorService.DeleteThresholdAsync(sensorId);
+            if (!deleted)
+                return NotFound($"Threshold for sensor {sensorId} not found.");
+    
+            return Ok($"Threshold for sensor {sensorId} deleted successfully.");
         }
         catch (Exception ex)
         {

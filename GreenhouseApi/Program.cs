@@ -103,6 +103,7 @@ builder.Services.AddScoped<IPredictionLogRepository, PredictionLogRepository>();
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IThresholdRepository, ThresholdRepository>();
 
 // Services
 builder.Services.AddScoped<IActuatorService, ActuatorService>();
