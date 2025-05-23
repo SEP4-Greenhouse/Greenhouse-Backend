@@ -47,7 +47,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("/allReadings")]
+    [HttpGet("allReadings")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
         var readingsBySensor = await sensorService.GetReadingsBySensorAsync();
@@ -102,7 +102,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("/{sensorId}/paginated")]
+    [HttpGet("{sensorId}/paginated")]
     public async Task<IActionResult> GetPaginatedReadings(int sensorId, [FromQuery] int pageNumber,
         [FromQuery] int pageSize)
     {
@@ -118,7 +118,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("/{sensorId}/average")]
+    [HttpGet("{sensorId}/average")]
     public async Task<IActionResult> GetAverageReading(int sensorId, [FromQuery] DateTime start,
         [FromQuery] DateTime end)
     {
@@ -138,7 +138,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         });
     }
 
-    [HttpPost("/{sensorId}/threshold")]
+    [HttpPost("{sensorId}/threshold")]
     public async Task<IActionResult> AddThresholdToSensor(int sensorId, [FromBody] ThresholdDto thresholdDto)
     {
         var threshold = await sensorService.AddThresholdToSensorAsync(sensorId, thresholdDto);
@@ -149,7 +149,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         });
     }
 
-    [HttpGet("/{sensorId}/threshold")]
+    [HttpGet("{sensorId}/threshold")]
     public async Task<IActionResult> GetThresholdFromSensor(int sensorId)
     {
         var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
@@ -163,7 +163,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         });
     }
 
-    [HttpPut("/{sensorId}/threshold")]
+    [HttpPut("{sensorId}/threshold")]
     public async Task<IActionResult> UpdateThreshold(int sensorId, [FromBody] ThresholdDto thresholdDto)
     {
         var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
@@ -182,7 +182,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         });
     }
 
-    [HttpDelete("/{sensorId}/threshold")]
+    [HttpDelete("{sensorId}/threshold")]
     public async Task<IActionResult> DeleteThreshold(int sensorId)
     {
         var deleted = await sensorService.DeleteThresholdAsync(sensorId);
