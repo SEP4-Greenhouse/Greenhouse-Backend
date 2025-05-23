@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Domain.DTOs;
 
@@ -15,9 +16,12 @@ public class MlSensorReadingDto
     }
 
     [Required]
+    [JsonPropertyName("SensorName")]
     public string SensorName { get; set; }
     [Required]
+    [JsonPropertyName("Unit")]
     public string Unit { get; set; }
     [Required]
+    [JsonPropertyName("Value")]
     public double Value { get; set; }
 }
