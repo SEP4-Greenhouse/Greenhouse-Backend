@@ -70,8 +70,11 @@ builder.Services.AddDbContext<GreenhouseDbContext>(options =>
 
 builder.Services.AddHttpClient<IMlHttpClient, MlHttpClient>(client =>
 {
-    client.BaseAddress = new Uri("https://greenhousemlapp.azurewebsites.net");
+    var mlBaseUrl = builder.Configuration["MLService:BaseUrl"] 
+                    ?? throw new InvalidOperationException("MLService BaseUrl missing");
+    client.BaseAddress = new Uri(mlBaseUrl);
 });
+
 
 // Repositories
 builder.Services.AddScoped<IActuatorActionRepository, ActuatorActionRepository>();

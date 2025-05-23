@@ -5,21 +5,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace ML_Model;
 
-public class MlHttpClient : IMlHttpClient
+public class MlHttpClient(HttpClient httpClient) : IMlHttpClient
 {
-    private readonly HttpClient _httpClient;
-
-    public MlHttpClient(HttpClient httpClient, IConfiguration configuration)
-    {
-        _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(configuration["MLService:BaseUrl"] ?? throw new InvalidOperationException());
-    }
-
     public async Task<PredictionResultDto> PredictNextWateringTimeAsync(MlModelDataDto preparedData)
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(preparedData);
-        Console.WriteLine(json);
-        var response = await _httpClient.PostAsJsonAsync("api/ml/predict", preparedData);
+        var response = await httpClient.PostAsJsonAsync("api/ml/predict", preparedData);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PredictionResultDto>();

@@ -12,5 +12,5 @@ services:
       - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ML_API_URL=https://greenhousemlapp.azurewebsites.net 
+      - MLService__BaseUrl=https://greenhousemlapp.azurewebsites.net
     restart: unless-stopped
