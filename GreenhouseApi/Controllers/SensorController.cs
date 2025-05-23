@@ -12,7 +12,7 @@ namespace GreenhouseApi.Controllers;
 public class SensorController(ISensorService sensorService) : ControllerBase
 {
     // This Endpoint is for IOT Team to add a new sensor reading into the database.
-    [HttpPost("sensor/reading(IOT)")]
+    [HttpPost("/reading(IOT)")]
     public async Task<IActionResult> AddSensorReading([FromBody] SensorReadingDto readingDto, [FromQuery] int sensorId)
     {
         var sensor = await sensorService.GetByIdAsync(sensorId)
@@ -38,7 +38,6 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 
         var simplifiedReadings = readings.Select(r => new
         {
-            r.Id,
             r.TimeStamp,
             r.Value,
             r.Unit,
@@ -48,7 +47,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("sensor/readings")]
+    [HttpGet("/allReadings")]
     public async Task<IActionResult> GetReadingsBySensor()
     {
         var readingsBySensor = await sensorService.GetReadingsBySensorAsync();
@@ -57,33 +56,31 @@ public class SensorController(ISensorService sensorService) : ControllerBase
             kvp => kvp.Key,
             kvp => kvp.Value.Select(r => new
             {
-                r.Id,
                 r.TimeStamp,
                 r.Value,
-                r.Unit
+                r.Unit,
+                r.SensorId,
             }).ToList()
         );
 
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("sensor/latest")]
-    public async Task<IActionResult> GetLatestReadingBySensor()
+    [HttpGet("{sensorId}/latestBySensor")]
+    public async Task<IActionResult> GetLatestReadingBySensor(int sensorId)
     {
         var latestReadings = await sensorService.GetLatestReadingBySensorAsync();
+        if (!latestReadings.TryGetValue(sensorId, out var latestReading))
+            return NotFound($"No latest reading found for sensor {sensorId}.");
 
-        var simplifiedReadings = latestReadings.ToDictionary(
-            kvp => kvp.Key,
-            kvp => new
-            {
-                kvp.Value.Id,
-                kvp.Value.TimeStamp,
-                kvp.Value.Value,
-                kvp.Value.Unit
-            }
-        );
+        var simplifiedReading = new
+        {
+            latestReading.TimeStamp,
+            latestReading.Value,
+            latestReading.Unit,
+        };
 
-        return Ok(simplifiedReadings);
+        return Ok(simplifiedReading);
     }
 
     [HttpGet("range")]
@@ -96,7 +93,6 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 
         var simplifiedReadings = readings.Select(r => new
         {
-            r.Id,
             r.TimeStamp,
             r.Value,
             r.Unit,
@@ -106,7 +102,7 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("sensor/{sensorId}/paginated")]
+    [HttpGet("/{sensorId}/paginated")]
     public async Task<IActionResult> GetPaginatedReadings(int sensorId, [FromQuery] int pageNumber,
         [FromQuery] int pageSize)
     {
@@ -114,16 +110,15 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 
         var simplifiedReadings = readings.Select(r => new
         {
-            r.Id,
             r.TimeStamp,
             r.Value,
-            r.Unit
+            r.Unit,
         }).ToList();
 
         return Ok(simplifiedReadings);
     }
 
-    [HttpGet("sensor/{sensorId}/average")]
+    [HttpGet("/{sensorId}/average")]
     public async Task<IActionResult> GetAverageReading(int sensorId, [FromQuery] DateTime start,
         [FromQuery] DateTime end)
     {
@@ -143,20 +138,18 @@ public class SensorController(ISensorService sensorService) : ControllerBase
         });
     }
 
-    [HttpPost("sensor/{sensorId}/threshold")]
+    [HttpPost("/{sensorId}/threshold")]
     public async Task<IActionResult> AddThresholdToSensor(int sensorId, [FromBody] ThresholdDto thresholdDto)
     {
         var threshold = await sensorService.AddThresholdToSensorAsync(sensorId, thresholdDto);
         return Ok(new
         {
-            threshold.Id,
-            threshold.SensorId,
             threshold.MinValue,
             threshold.MaxValue
         });
     }
 
-    [HttpGet("sensor/{sensorId}/threshold")]
+    [HttpGet("/{sensorId}/threshold")]
     public async Task<IActionResult> GetThresholdFromSensor(int sensorId)
     {
         var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
@@ -165,14 +158,12 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 
         return Ok(new
         {
-            threshold.Id,
-            threshold.SensorId,
             threshold.MinValue,
             threshold.MaxValue
         });
     }
 
-    [HttpPut("sensor/{sensorId}/threshold")]
+    [HttpPut("/{sensorId}/threshold")]
     public async Task<IActionResult> UpdateThreshold(int sensorId, [FromBody] ThresholdDto thresholdDto)
     {
         var threshold = await sensorService.GetThresholdBySensorIdAsync(sensorId);
@@ -186,14 +177,12 @@ public class SensorController(ISensorService sensorService) : ControllerBase
 
         return Ok(new
         {
-            updatedThreshold.Id,
-            updatedThreshold.SensorId,
             updatedThreshold.MinValue,
             updatedThreshold.MaxValue
         });
     }
 
-    [HttpDelete("sensor/{sensorId}/threshold")]
+    [HttpDelete("/{sensorId}/threshold")]
     public async Task<IActionResult> DeleteThreshold(int sensorId)
     {
         var deleted = await sensorService.DeleteThresholdAsync(sensorId);

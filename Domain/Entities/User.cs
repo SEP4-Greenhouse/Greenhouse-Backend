@@ -27,19 +27,6 @@ public class User
         HashedPassword = newHashedPassword;
     }
 
-    public void UpdateEmail(string newEmail)
-    {
-        if (string.IsNullOrWhiteSpace(newEmail))
-            throw new ArgumentException("Email cannot be empty.");
-
-        if (newEmail == Email)
-            throw new InvalidOperationException("New email cannot be the same as the current email.");
-
-        if (!newEmail.Contains("@"))
-            throw new ArgumentException("Invalid email format.");
-
-        Email = newEmail;
-    }
 
     public void ChangeName(string newName)
     {
