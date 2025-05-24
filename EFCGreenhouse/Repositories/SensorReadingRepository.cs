@@ -8,11 +8,13 @@ namespace EFCGreenhouse.Repositories;
 public class SensorReadingRepository(GreenhouseDbContext context, ILogger<SensorReadingRepository> logger)
     : BaseRepository<SensorReading>(context), ISensorReadingRepository
 {
+    private readonly ILogger<SensorReadingRepository> _logger = logger;
+
     public async Task<IEnumerable<SensorReading>> GetLatestFromAllSensorsAsync()
     {
         try
         {
-            return await Context.SensorReadings
+            return await DbSet
                 .FromSqlRaw(@"
                 SELECT sr.*
                 FROM (
@@ -25,7 +27,7 @@ public class SensorReadingRepository(GreenhouseDbContext context, ILogger<Sensor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error getting latest readings from all sensors");
+            _logger.LogError(ex, "Error getting latest readings from all sensors");
             throw;
         }
     }
@@ -45,44 +47,68 @@ public class SensorReadingRepository(GreenhouseDbContext context, ILogger<Sensor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error grouping readings by sensor");
+            _logger.LogError(ex, "Error grouping readings by sensor");
             throw;
         }
     }
 
     public async Task<IEnumerable<SensorReading>> GetByTimeRangeAsync(DateTime start, DateTime end)
     {
-        return await DbSet
-            .AsNoTracking()
-            .Where(r => r.TimeStamp >= start && r.TimeStamp <= end)
-            .OrderByDescending(r => r.TimeStamp)
-            .ToListAsync();
+        try
+        {
+            return await DbSet
+                .AsNoTracking()
+                .Where(r => r.TimeStamp >= start && r.TimeStamp <= end)
+                .OrderByDescending(r => r.TimeStamp)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting readings by time range");
+            throw;
+        }
     }
 
     public async Task<IEnumerable<SensorReading>> GetPaginatedAsync(int sensorId, int pageNumber, int pageSize)
     {
-        return await DbSet
-            .AsNoTracking()
-            .Where(r => r.SensorId == sensorId)
-            .OrderByDescending(r => r.TimeStamp)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        try
+        {
+            return await DbSet
+                .AsNoTracking()
+                .Where(r => r.SensorId == sensorId)
+                .OrderByDescending(r => r.TimeStamp)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error paginating sensor readings");
+            throw;
+        }
     }
 
     public async Task<double> GetAverageAsync(int sensorId, DateTime start, DateTime end)
     {
-        return await DbSet
-            .Where(r => r.SensorId == sensorId && r.TimeStamp >= start && r.TimeStamp <= end)
-            .Select(r => r.Value)
-            .AverageAsync();
+        try
+        {
+            return await DbSet
+                .Where(r => r.SensorId == sensorId && r.TimeStamp >= start && r.TimeStamp <= end)
+                .Select(r => r.Value)
+                .AverageAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating average sensor reading");
+            throw;
+        }
     }
 
     public async Task<IDictionary<int, SensorReading>> GetLatestBySensorAsync()
     {
         try
         {
-            var latestReadings = await Context.SensorReadings
+            var latestReadings = await DbSet
                 .FromSqlRaw(@"
                     SELECT sr.*
                     FROM (
@@ -97,7 +123,7 @@ public class SensorReadingRepository(GreenhouseDbContext context, ILogger<Sensor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error getting latest readings by sensor");
+            _logger.LogError(ex, "Error getting latest readings by sensor");
             throw;
         }
     }
