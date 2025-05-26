@@ -97,9 +97,17 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             greenhouse
         );
 
-        await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
-        return Ok("Plant added to greenhouse successfully.");
+        var created = await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
+
+        return Ok(new
+        {
+            created.Id,
+            created.Species,
+            created.PlantingDate,
+            created.GrowthStage
+        });
     }
+
 
     [HttpPut("{greenhouseId}/plants/{plantId}/growthStage")]
     public async Task<IActionResult> UpdatePlantGrowthStage(int greenhouseId, int plantId,
