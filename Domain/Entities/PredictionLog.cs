@@ -7,7 +7,7 @@ public class PredictionLog
 {
     [Key] public int Id { get; init; }
 
-    [Required] public DateTime PredictionTime { get; init; }
+    [Required] public DateTime PredictionTime { get; set; }
 
     [Required] public double HoursUntilNextWatering { get; init; }
 

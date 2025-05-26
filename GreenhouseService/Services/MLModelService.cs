@@ -87,6 +87,16 @@ public class MlModelService(
     {
         if (log == null)
             throw new ArgumentNullException(nameof(log), "Prediction log cannot be null.");
+
+        if (log.PredictionTime.Kind == DateTimeKind.Unspecified)
+        {
+            log.PredictionTime = DateTime.SpecifyKind(log.PredictionTime, DateTimeKind.Utc);
+        }
+        else if (log.PredictionTime.Kind == DateTimeKind.Local)
+        {
+            log.PredictionTime = log.PredictionTime.ToUniversalTime();
+        }
+
         return await predictionLogRepository.AddAsync(log);
     }
 }
