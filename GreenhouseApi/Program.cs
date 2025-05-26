@@ -53,11 +53,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5174")
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "https://sep4-greenhouse.github.io"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
+
 
 var connectionString = Environment.GetEnvironmentVariable("AIVEN_DB_CONNECTION");
 if (string.IsNullOrEmpty(connectionString))
