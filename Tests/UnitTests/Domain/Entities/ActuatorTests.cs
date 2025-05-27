@@ -1,7 +1,7 @@
 using Domain.Entities;
 using Domain.Entities.Actuators;
 
-namespace Tests.Domain.Entities;
+namespace Tests.UnitTests.Domain.Entities;
 
 public class ActuatorTests
 {

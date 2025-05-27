@@ -1,6 +1,6 @@
 using Domain.Entities;
 
-namespace Tests.Domain.Entities;
+namespace Tests.UnitTests.Domain.Entities;
 
 public class PlantTests
 {

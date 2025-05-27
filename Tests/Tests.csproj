@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+        <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
     </ItemGroup>
@@ -27,8 +28,6 @@
       <Folder Include="IntegrationTest\GreenhouseService\" />
       <Folder Include="IntegrationTest\IotClient\" />
       <Folder Include="IntegrationTest\MLModelClient\" />
-      <Folder Include="UnitTests\EFCGreenhouse\" />
-      <Folder Include="UnitTests\GreenhouseApi\" />
       <Folder Include="UnitTests\GreenhouseService\" />
       <Folder Include="UnitTests\IotClient\" />
       <Folder Include="UnitTests\MLModelClient\" />
