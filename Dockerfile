@@ -10,6 +10,7 @@ COPY IotClient/IotClient.csproj IotClient/
 COPY MLModelClient/MLModelClient.csproj MLModelClient/
 COPY GreenhouseService/GreenhouseService.csproj GreenhouseService/
 
+RUN dotnet sln Greenhouse-Backend.sln remove Tests/Tests.csproj
 RUN dotnet restore Greenhouse-Backend.sln
 
 COPY . .
