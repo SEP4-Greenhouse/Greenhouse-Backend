@@ -27,7 +27,7 @@ jobs:
       - name: Run Tests
         env:
           AIVEN_DB_CONNECTION: ${{ secrets.AIVEN_DB_CONNECTION }}
-        run: dotnet test Greenhouse-Backend.sln --no-build --verbosity normal
+        run: dotnet test Tests/Tests.csproj --no-build --verbosity normal
 
 
       - name: Build Docker image
