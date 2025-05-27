@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+        <PackageReference Include="xunit" Version="2.5.3"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="IntegrationTest\Domain\" />
+      <Folder Include="IntegrationTest\EFCGreenhouse\" />
+      <Folder Include="IntegrationTest\GreenhouseApi\" />
+      <Folder Include="IntegrationTest\GreenhouseService\" />
+      <Folder Include="IntegrationTest\IotClient\" />
+      <Folder Include="IntegrationTest\MLModelClient\" />
+      <Folder Include="UnitTests\EFCGreenhouse\" />
+      <Folder Include="UnitTests\GreenhouseApi\" />
+      <Folder Include="UnitTests\GreenhouseService\" />
+      <Folder Include="UnitTests\IotClient\" />
+      <Folder Include="UnitTests\MLModelClient\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+      <ProjectReference Include="..\EFCGreenhouse\EFCGreenhouse.csproj" />
+      <ProjectReference Include="..\GreenhouseApi\GreenhouseApi.csproj" />
+      <ProjectReference Include="..\GreenhouseService\GreenhouseService.csproj" />
+      <ProjectReference Include="..\IotClient\IotClient.csproj" />
+      <ProjectReference Include="..\MLModelClient\MLModelClient.csproj" />
+    </ItemGroup>
+
+</Project>

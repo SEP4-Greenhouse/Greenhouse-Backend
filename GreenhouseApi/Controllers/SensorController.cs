@@ -11,8 +11,8 @@ namespace GreenhouseApi.Controllers;
 [Route("api/sensor")]
 public class SensorController(ISensorService sensorService) : ControllerBase
 {
-    // This Endpoint is for IOT Team to add a new sensor reading into the database.
-    [HttpPost("/reading(IOT)")]
+    // This Endpoint is for IotClient Team to add a new sensor reading into the database.
+    [HttpPost("/reading(IotClient)")]
     public async Task<IActionResult> AddSensorReading([FromBody] SensorReadingDto readingDto, [FromQuery] int sensorId)
     {
         var sensor = await sensorService.GetByIdAsync(sensorId)
