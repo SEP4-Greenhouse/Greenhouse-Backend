@@ -32,14 +32,19 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     public async Task<IActionResult> CreateGreenhouse([FromBody] GreenhouseDto dto)
     {
         var user = await userService.GetUserByIdAsync(dto.UserId);
+
         if (dto is { Name: not null, PlantType: not null } && user != null)
         {
             var greenhouse = new Greenhouse(dto.Name, dto.PlantType, dto.UserId);
             await greenhouseService.AddAsync(greenhouse);
+
+            //  Return the greenhouse ID so frontend can access it
+            return Ok(new { id = greenhouse.Id });
         }
 
-        return Ok();
+        return BadRequest("Invalid greenhouse creation request.");
     }
+
 
     [HttpPut("{id}/name")]
     public async Task<IActionResult> UpdateGreenhouseName(int id, [FromBody] string newName)
