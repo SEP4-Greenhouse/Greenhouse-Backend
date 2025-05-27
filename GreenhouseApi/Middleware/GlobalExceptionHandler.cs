@@ -22,25 +22,32 @@ namespace GreenhouseApi.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            var response = new
+            var statusCode = exception switch
             {
-                message = exception.Message
+                KeyNotFoundException => HttpStatusCode.NotFound,
+                ArgumentException => HttpStatusCode.BadRequest,
+                InvalidOperationException => HttpStatusCode.Conflict, // 🔥 this fixes your user already exists error
+                _ => HttpStatusCode.InternalServerError
             };
 
-            switch (exception)
-            {
-                case KeyNotFoundException:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    break;
-                case ArgumentException:
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-                default:
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    break;
-            }
+            context.Response.StatusCode = (int)statusCode;
 
-            var result = JsonSerializer.Serialize(response);
+            var response = new
+            {
+                error = new
+                {
+                    message = exception.Message,
+                    statusCode = (int)statusCode,
+                    type = exception.GetType().Name
+                }
+            };
+
+            var result = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            });
+
             await context.Response.WriteAsync(result);
         }
     }
