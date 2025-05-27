@@ -28,8 +28,6 @@
       <Folder Include="IntegrationTest\GreenhouseService\" />
       <Folder Include="IntegrationTest\IotClient\" />
       <Folder Include="IntegrationTest\MLModelClient\" />
-      <Folder Include="UnitTests\IotClient\" />
-      <Folder Include="UnitTests\MLModelClient\" />
     </ItemGroup>
 
     <ItemGroup>
