@@ -1,57 +1,42 @@
-on:
-  push:
-    branches:
-      - '**'
+- name: Restore dependencies
+  run: dotnet restore Greenhouse-Backend.sln
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    env:
-      AIVEN_DB_CONNECTION: ${{ secrets.AIVEN_DB_CONNECTION }}
+- name: Build
+  run: dotnet build Greenhouse-Backend.sln --no-restore --configuration Release
 
-    steps:
-      - uses: actions/checkout@v4
+- name: Run Unit & Integration Tests
+  env:
+    AIVEN_DB_CONNECTION: ${{ secrets.AIVEN_DB_CONNECTION }}
+  run: dotnet test Greenhouse-Backend.sln --no-build --verbosity normal
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
+- name: Build Docker image
+  run: docker build -t greenhouse-backend:local .
 
-      - name: Restore dependencies
-        run: dotnet restore Greenhouse-Backend.sln
+- name: Create Docker network
+  run: docker network create greenhouse-network || true
 
-      - name: Build
-        run: dotnet build Greenhouse-Backend.sln --no-restore --configuration Release
+- name: Run backend container
+  run: |
+    docker run --rm --name backend --network greenhouse-network \
+      -e AIVEN_DB_CONNECTION="${{ secrets.AIVEN_DB_CONNECTION }}" \
+      -d -p 5001:5001 greenhouse-backend:local
 
-      - name: Build Docker image
-        run: docker build -t greenhouse-backend:local .
+- name: Wait for backend to be ready
+  run: |
+    for i in {1..20}; do
+      if curl -s -f http://localhost:5001/api/Auth/health; then
+        echo "Backend is up!"
+        exit 0
+      else
+        echo "Waiting for backend... ($i)"
+        sleep 3
+      fi
+    done
+    echo "Backend startup failed"
+    exit 1
 
-      - name: Create Docker network
-        run: docker network create greenhouse-network || true
 
-      - name: Run backend container
-        run: |
-          docker run --rm --name backend --network greenhouse-network \
-            -e AIVEN_DB_CONNECTION="${{ secrets.AIVEN_DB_CONNECTION }}" \
-            -d -p 5001:5001 greenhouse-backend:local
-
-      - name: Wait for backend to be ready and test API
-        run: |
-          echo "Waiting for backend to start..."
-          for i in {1..10}; do
-            if curl -s -f http://localhost:5001/api/Auth/health; then
-              echo "Backend is responding."
-              exit 0
-            else
-              echo "Waiting ($i)..."
-              sleep 3
-            fi
-          done
-          echo "Backend did not respond in time."
-          exit 1
-
-      - name: Cleanup
-        run: |
-          docker stop backend || true
-          docker network rm greenhouse-network || true
+- name: Cleanup
+  run: |
+    docker stop backend || true
+    docker network rm greenhouse-network || true
