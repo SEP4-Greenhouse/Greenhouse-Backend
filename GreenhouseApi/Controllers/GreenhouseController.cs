@@ -219,8 +219,8 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
 
         Actuator actuator = actuatorDto.Type.ToLower() switch
         {
-            "waterPump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
-            "servoMotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
+            "waterpump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
+            "servomotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
             _ => throw new ArgumentException($"Unsupported actuator type: {actuatorDto.Type}")
         };
 
