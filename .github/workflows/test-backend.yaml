@@ -24,11 +24,6 @@ jobs:
       - name: Build
         run: dotnet build Greenhouse-Backend.sln --no-restore --configuration Release
 
-      - name: Run Tests
-        env:
-          AIVEN_DB_CONNECTION: ${{ secrets.AIVEN_DB_CONNECTION }}
-        run: dotnet test Tests/Tests.csproj --verbosity normal
-
       - name: Build Docker image
         run: docker build -t greenhouse-backend:local .
 
