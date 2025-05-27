@@ -32,14 +32,19 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
     public async Task<IActionResult> CreateGreenhouse([FromBody] GreenhouseDto dto)
     {
         var user = await userService.GetUserByIdAsync(dto.UserId);
+
         if (dto is { Name: not null, PlantType: not null } && user != null)
         {
             var greenhouse = new Greenhouse(dto.Name, dto.PlantType, dto.UserId);
             await greenhouseService.AddAsync(greenhouse);
+
+            //  Return the greenhouse ID so frontend can access it
+            return Ok(new { id = greenhouse.Id });
         }
 
-        return Ok();
+        return BadRequest("Invalid greenhouse creation request.");
     }
+
 
     [HttpPut("{id}/name")]
     public async Task<IActionResult> UpdateGreenhouseName(int id, [FromBody] string newName)
@@ -97,9 +102,17 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
             greenhouse
         );
 
-        await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
-        return Ok("Plant added to greenhouse successfully.");
+        var created = await greenhouseService.AddPlantToGreenhouseAsync(id, plant);
+
+        return Ok(new
+        {
+            created.Id,
+            created.Species,
+            created.PlantingDate,
+            created.GrowthStage
+        });
     }
+
 
     [HttpPut("{greenhouseId}/plants/{plantId}/growthStage")]
     public async Task<IActionResult> UpdatePlantGrowthStage(int greenhouseId, int plantId,
@@ -206,8 +219,8 @@ public class GreenhouseController(IGreenhouseService greenhouseService, IUserSer
 
         Actuator actuator = actuatorDto.Type.ToLower() switch
         {
-            "waterPump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
-            "servoMotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
+            "waterpump" => new WaterPumpActuator(actuatorDto.Status, greenhouse),
+            "servomotor" => new ServoMotorActuator(actuatorDto.Status, greenhouse),
             _ => throw new ArgumentException($"Unsupported actuator type: {actuatorDto.Type}")
         };
 
