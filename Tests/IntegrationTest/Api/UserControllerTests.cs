@@ -50,7 +50,26 @@ public class UserControllerTests(WebApplicationFactory<Program> factory) : IClas
     [Fact]
     public async Task UpdatePassword_Works()
     {
-        await AuthenticateAsync("updatepass@example.com", "test123", "UpdatePassUser");
+        // Use a unique email to avoid conflicts
+        var uniqueEmail = $"updatepass_{Guid.NewGuid()}@example.com";
+        var registerDto = new CreateUserDto("UpdatePassUser", uniqueEmail, "test123");
+        var registerResponse = await _client.PostAsJsonAsync("/api/auth/register", registerDto);
+        if (!registerResponse.IsSuccessStatusCode)
+        {
+            var error = await registerResponse.Content.ReadAsStringAsync();
+            throw new Exception($"Registration failed: {error}");
+        }
+
+        var login = new LoginRequestDto(uniqueEmail, "test123");
+        var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", login);
+        if (!loginResponse.IsSuccessStatusCode)
+        {
+            var error = await loginResponse.Content.ReadAsStringAsync();
+            throw new Exception($"Login failed: {error}");
+        }
+        var loginData = await loginResponse.Content.ReadFromJsonAsync<LoginResponseDto>();
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", loginData!.Token);
+
         var newPassword = "newpassword123";
         var response = await _client.PutAsJsonAsync("/api/user/password", newPassword);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

@@ -31,9 +31,4 @@
       <ProjectReference Include="..\MLModelClient\MLModelClient.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="IntegrationTest\Database\" />
-      <Folder Include="IntegrationTest\ML\" />
-    </ItemGroup>
-
 </Project>
